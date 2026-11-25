@@ -45,7 +45,11 @@ jobs:
       - name: Ruff format check
         run: .venv/bin/ruff format --check .
 
+      # -P keeps the working directory off sys.path (same as in evidence.yml);
+      # the kit itself is imported via an explicit PYTHONPATH.
       - name: Validate mapping
+        env:
+          PYTHONPATH: ${{ github.workspace }}
         run: .venv/bin/python -P -m evidence_kit validate mappings/controls.yaml
 
       # Includes the isolation test: a malicious evidence_kit/ in the scanned repository
