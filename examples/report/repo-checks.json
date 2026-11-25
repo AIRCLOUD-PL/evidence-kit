@@ -44,6 +44,12 @@
       "paths": []
     }
   },
+  "scan_config": {
+    "trivy_config": [],
+    "trivy_ignore": [],
+    "gitleaks_config": [],
+    "gitleaks_ignore": []
+  },
   "meta": {
     "kit_version": "0.1.0",
     "repository": "example/demo-app",
@@ -51,12 +57,13 @@
     "ref": "refs/heads/main",
     "run_url": "https://github.com/example/demo-app/actions/runs/1234567890",
     "tools": {
-      "trivy": "v0.70.0",
+      "trivy": "v0.76.2",
       "gitleaks": "8.30.1",
       "scorecard_action": "v2.6.0"
     },
     "vex_file": ".vex/openvex.json",
-    "scorecard_enabled": "true"
+    "scorecard_enabled": "true",
+    "notes": {}
   },
   "github": {
     "available": true,

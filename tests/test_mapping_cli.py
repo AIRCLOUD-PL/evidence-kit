@@ -45,12 +45,14 @@ def test_validate_catches_errors(mapping):  # V007
     bad["controls"][0]["ksc"] = ["KSC-99"]
     bad["controls"][1]["status"] = "maybe"
     bad["controls"].append(copy.deepcopy(bad["controls"][2]))
+    bad["controls"][3]["cra"] = [{"id": "CRA-14", "relation": "maybe"}]
     del bad["disclaimer"]["pl"]
     problems = "\n".join(validate(bad))
     assert "unknown reference KSC-99" in problems
     assert "status must be auto or manual" in problems
     assert "duplicate id" in problems
     assert "disclaimer.pl" in problems
+    assert "relation must be direct or supporting" in problems
 
 
 def test_cli_validate_and_report(tmp_path, capsys):  # V007, V008

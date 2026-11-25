@@ -10,7 +10,7 @@ authors = [{ name = "AIRCLOUD", email = "office@aircloud.com.pl" }]
 
 [project.urls]
 Homepage = "https://aircloud.com.pl"
-Source = "https://github.com/lkolo-prez/evidence-kit"
+Source = "https://github.com/AIRCLOUD-PL/evidence-kit"
 
 [tool.ruff]
 line-length = 120

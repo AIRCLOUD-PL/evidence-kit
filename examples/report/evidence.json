@@ -7,7 +7,7 @@
   "ref": "refs/heads/main",
   "run_url": "https://github.com/example/demo-app/actions/runs/1234567890",
   "tools": {
-    "trivy": "v0.70.0",
+    "trivy": "v0.76.2",
     "gitleaks": "8.30.1",
     "scorecard_action": "v2.6.0"
   },
@@ -36,13 +36,28 @@
         "pl": "Wykaz komponentów oprogramowania (SBOM, CycloneDX)"
       },
       "ksc": [
-        "KSC-8.1.2e",
-        "KSC-8.1.2m",
-        "KSC-8.2"
+        {
+          "id": "KSC-8.1.2e",
+          "relation": "supporting"
+        },
+        {
+          "id": "KSC-8.1.2m",
+          "relation": "supporting"
+        },
+        {
+          "id": "KSC-8.2",
+          "relation": "supporting"
+        }
       ],
       "cra": [
-        "CRA-I.2.1",
-        "CRA-13.5"
+        {
+          "id": "CRA-I.2.1",
+          "relation": "direct"
+        },
+        {
+          "id": "CRA-13.5",
+          "relation": "supporting"
+        }
       ],
       "osps": [
         "OSPS-QA-02.01",
@@ -74,14 +89,32 @@
         "pl": "Znane podatności w zależnościach (skan SBOM, opcjonalnie VEX)"
       },
       "ksc": [
-        "KSC-8.1.3",
-        "KSC-8.1.5b",
-        "KSC-8.1.5d"
+        {
+          "id": "KSC-8.1.3",
+          "relation": "direct"
+        },
+        {
+          "id": "KSC-8.1.5b",
+          "relation": "supporting"
+        },
+        {
+          "id": "KSC-8.1.5d",
+          "relation": "supporting"
+        }
       ],
       "cra": [
-        "CRA-I.1.2a",
-        "CRA-I.2.1",
-        "CRA-I.2.2"
+        {
+          "id": "CRA-I.2.1",
+          "relation": "direct"
+        },
+        {
+          "id": "CRA-I.1.2a",
+          "relation": "supporting"
+        },
+        {
+          "id": "CRA-I.2.2",
+          "relation": "supporting"
+        }
       ],
       "osps": [
         "OSPS-VM-05.03",
@@ -89,8 +122,8 @@
       ],
       "outcome": "fail",
       "result": {
-        "en": "Known vulnerabilities: 7 high, 12 medium; 1 suppressed by VEX.",
-        "pl": "Znane podatności: high: 7, medium: 12; wyłączone przez VEX: 1."
+        "en": "Known vulnerabilities: 7 high, 12 medium. Suppressed by VEX: 1.",
+        "pl": "Znane podatności: high: 7, medium: 12. Wyłączone przez VEX: 1."
       },
       "evidence": [
         "vulnerabilities.trivy.json",
@@ -112,7 +145,22 @@
           "UNKNOWN": 0
         },
         "total": 19,
-        "suppressed_by_vex": 1,
+        "suppressed": {
+          "vex": 1,
+          "ignore-file": 0,
+          "other": 0
+        },
+        "suppressed_findings": [
+          {
+            "id": "CVE-2021-33503",
+            "package": "urllib3",
+            "severity": "HIGH",
+            "kind": "vex",
+            "status": "not_affected",
+            "statement": "vulnerable_code_not_in_execute_path",
+            "source": "vex.openvex.json"
+          }
+        ],
         "top": [
           {
             "id": "CVE-2023-43804",
@@ -248,7 +296,9 @@
             "severity": "MEDIUM"
           }
         ],
-        "vex_file": ".vex/openvex.json"
+        "vex_file": ".vex/openvex.json",
+        "trivy_ignore_files": [],
+        "trivy_config_files_not_applied": []
       }
     },
     {
@@ -259,13 +309,32 @@
         "pl": "Brak sekretów w historii git (gitleaks)"
       },
       "ksc": [
-        "KSC-8.1.2n",
-        "KSC-8.1.2j",
-        "KSC-8.1.5a"
+        {
+          "id": "KSC-8.1.2n",
+          "relation": "supporting"
+        },
+        {
+          "id": "KSC-8.1.2j",
+          "relation": "supporting"
+        },
+        {
+          "id": "KSC-8.1.5a",
+          "relation": "supporting"
+        }
       ],
       "cra": [
-        "CRA-I.1.2d",
-        "CRA-I.1.2e"
+        {
+          "id": "CRA-13.1",
+          "relation": "supporting"
+        },
+        {
+          "id": "CRA-I.1.2d",
+          "relation": "supporting"
+        },
+        {
+          "id": "CRA-I.1.2e",
+          "relation": "supporting"
+        }
       ],
       "osps": [
         "OSPS-BR-07.01"
@@ -276,7 +345,8 @@
         "pl": "Potencjalne sekrety w historii git: 1 (typy reguł: 1). Unieważnij je i usuń."
       },
       "evidence": [
-        "secrets.gitleaks.json"
+        "secrets.gitleaks.json",
+        "secrets.gitleaks.baseline.json"
       ],
       "data": {
         "findings": 1,
@@ -290,7 +360,11 @@
             "line": 12,
             "commit": "4f2c1d9e8b7a"
           }
-        ]
+        ],
+        "repo_config_files": [],
+        "baseline": "ok",
+        "suppressed_by_repo_config": 0,
+        "suppressed_locations": []
       }
     },
     {
@@ -301,11 +375,20 @@
         "pl": "OpenSSF Scorecard (praktyki bezpieczeństwa repozytorium)"
       },
       "ksc": [
-        "KSC-8.1.2b",
-        "KSC-8.1.2h"
+        {
+          "id": "KSC-8.1.2b",
+          "relation": "supporting"
+        },
+        {
+          "id": "KSC-8.1.2h",
+          "relation": "supporting"
+        }
       ],
       "cra": [
-        "CRA-I.2.3"
+        {
+          "id": "CRA-I.2.3",
+          "relation": "supporting"
+        }
       ],
       "osps": [],
       "outcome": "warn",
@@ -423,12 +506,24 @@
         "pl": "Polityka bezpieczeństwa z kontaktem do zgłoszeń (SECURITY.md)"
       },
       "ksc": [
-        "KSC-8.1.3",
-        "KSC-8.1.4"
+        {
+          "id": "KSC-8.1.3",
+          "relation": "supporting"
+        },
+        {
+          "id": "KSC-8.1.4",
+          "relation": "supporting"
+        }
       ],
       "cra": [
-        "CRA-I.2.6",
-        "CRA-13.17"
+        {
+          "id": "CRA-I.2.6",
+          "relation": "direct"
+        },
+        {
+          "id": "CRA-13.17",
+          "relation": "direct"
+        }
       ],
       "osps": [
         "OSPS-VM-02.01",
@@ -458,12 +553,24 @@
         "pl": "Polityka skoordynowanego ujawniania podatności (CVD)"
       },
       "ksc": [
-        "KSC-8.1.3",
-        "KSC-8.1.5d"
+        {
+          "id": "KSC-8.1.3",
+          "relation": "supporting"
+        },
+        {
+          "id": "KSC-8.1.5d",
+          "relation": "supporting"
+        }
       ],
       "cra": [
-        "CRA-I.2.5",
-        "CRA-13.8"
+        {
+          "id": "CRA-I.2.5",
+          "relation": "direct"
+        },
+        {
+          "id": "CRA-13.8",
+          "relation": "supporting"
+        }
       ],
       "osps": [
         "OSPS-VM-01.01"
@@ -489,11 +596,20 @@
         "pl": "security.txt (RFC 9116) z polem Contact i ważnym Expires"
       },
       "ksc": [
-        "KSC-8.1.3"
+        {
+          "id": "KSC-8.1.3",
+          "relation": "supporting"
+        }
       ],
       "cra": [
-        "CRA-I.2.6",
-        "CRA-13.17"
+        {
+          "id": "CRA-I.2.6",
+          "relation": "supporting"
+        },
+        {
+          "id": "CRA-13.17",
+          "relation": "supporting"
+        }
       ],
       "osps": [],
       "outcome": "pass",
@@ -522,11 +638,24 @@
         "pl": "Określeni właściciele kodu (CODEOWNERS)"
       },
       "ksc": [
-        "KSC-8.1.2n",
-        "KSC-8.1.5c"
+        {
+          "id": "KSC-8.1.2n",
+          "relation": "supporting"
+        },
+        {
+          "id": "KSC-8.1.5c",
+          "relation": "supporting"
+        }
       ],
       "cra": [
-        "CRA-I.1.2f"
+        {
+          "id": "CRA-13.1",
+          "relation": "supporting"
+        },
+        {
+          "id": "CRA-I.1.2f",
+          "relation": "supporting"
+        }
       ],
       "osps": [],
       "outcome": "pass",
@@ -552,12 +681,28 @@
         "pl": "Chroniona gałąź domyślna (ochrona gałęzi lub ruleset)"
       },
       "ksc": [
-        "KSC-8.1.5c",
-        "KSC-8.1.2n"
+        {
+          "id": "KSC-8.1.5c",
+          "relation": "supporting"
+        },
+        {
+          "id": "KSC-8.1.2n",
+          "relation": "supporting"
+        }
       ],
       "cra": [
-        "CRA-I.1.2f",
-        "CRA-I.1.2d"
+        {
+          "id": "CRA-13.1",
+          "relation": "supporting"
+        },
+        {
+          "id": "CRA-I.1.2d",
+          "relation": "supporting"
+        },
+        {
+          "id": "CRA-I.1.2f",
+          "relation": "supporting"
+        }
       ],
       "osps": [
         "OSPS-AC-03.01",
@@ -591,10 +736,16 @@
         "pl": "Automatyczne aktualizacje zależności (Dependabot lub Renovate)"
       },
       "ksc": [
-        "KSC-8.1.5b"
+        {
+          "id": "KSC-8.1.5b",
+          "relation": "supporting"
+        }
       ],
       "cra": [
-        "CRA-I.2.2"
+        {
+          "id": "CRA-I.2.2",
+          "relation": "supporting"
+        }
       ],
       "osps": [],
       "outcome": "pass",
@@ -619,11 +770,20 @@
         "pl": "Rejestr dostawców w repozytorium (treść wymaga oceny człowieka)"
       },
       "ksc": [
-        "KSC-8.1.2e",
-        "KSC-8.2"
+        {
+          "id": "KSC-8.1.2e",
+          "relation": "supporting"
+        },
+        {
+          "id": "KSC-8.2",
+          "relation": "supporting"
+        }
       ],
       "cra": [
-        "CRA-13.5"
+        {
+          "id": "CRA-13.5",
+          "relation": "supporting"
+        }
       ],
       "osps": [],
       "outcome": "warn",
@@ -646,11 +806,20 @@
         "pl": "Procedura zgłaszania incydentów i podatności w repozytorium"
       },
       "ksc": [
-        "KSC-8.1.4",
-        "KSC-11.1.4"
+        {
+          "id": "KSC-8.1.4",
+          "relation": "supporting"
+        },
+        {
+          "id": "KSC-11.1.4",
+          "relation": "supporting"
+        }
       ],
       "cra": [
-        "CRA-14"
+        {
+          "id": "CRA-14",
+          "relation": "supporting"
+        }
       ],
       "osps": [],
       "outcome": "warn",
@@ -673,12 +842,24 @@
         "pl": "Szacowanie ryzyka i postępowanie z ryzykiem"
       },
       "ksc": [
-        "KSC-8.1.1",
-        "KSC-8.1.2a"
+        {
+          "id": "KSC-8.1.1",
+          "relation": "direct"
+        },
+        {
+          "id": "KSC-8.1.2a",
+          "relation": "direct"
+        }
       ],
       "cra": [
-        "CRA-13.2",
-        "CRA-I.1.1"
+        {
+          "id": "CRA-13.2",
+          "relation": "direct"
+        },
+        {
+          "id": "CRA-I.1.1",
+          "relation": "direct"
+        }
       ],
       "osps": [],
       "outcome": "manual",
@@ -697,10 +878,16 @@
         "pl": "Ciągłość działania, kopie zapasowe i odtwarzanie"
       },
       "ksc": [
-        "KSC-8.1.2f"
+        {
+          "id": "KSC-8.1.2f",
+          "relation": "direct"
+        }
       ],
       "cra": [
-        "CRA-I.1.2h"
+        {
+          "id": "CRA-I.1.2h",
+          "relation": "direct"
+        }
       ],
       "osps": [],
       "outcome": "manual",
@@ -719,10 +906,16 @@
         "pl": "Polityka kryptografii i szyfrowania"
       },
       "ksc": [
-        "KSC-8.1.2k"
+        {
+          "id": "KSC-8.1.2k",
+          "relation": "direct"
+        }
       ],
       "cra": [
-        "CRA-I.1.2e"
+        {
+          "id": "CRA-I.1.2e",
+          "relation": "direct"
+        }
       ],
       "osps": [],
       "outcome": "manual",
@@ -741,12 +934,24 @@
         "pl": "Kontrola dostępu, MFA i bezpieczeństwo fizyczne"
       },
       "ksc": [
-        "KSC-8.1.2c",
-        "KSC-8.1.2l",
-        "KSC-8.1.2n"
+        {
+          "id": "KSC-8.1.2c",
+          "relation": "direct"
+        },
+        {
+          "id": "KSC-8.1.2l",
+          "relation": "direct"
+        },
+        {
+          "id": "KSC-8.1.2n",
+          "relation": "direct"
+        }
       ],
       "cra": [
-        "CRA-I.1.2d"
+        {
+          "id": "CRA-I.1.2d",
+          "relation": "direct"
+        }
       ],
       "osps": [],
       "outcome": "manual",
@@ -765,10 +970,22 @@
         "pl": "Bezpieczeństwo personelu, szkolenia i cyberhigiena"
       },
       "ksc": [
-        "KSC-8.1.2d",
-        "KSC-8.1.2i",
-        "KSC-8.1.2j",
-        "KSC-8e"
+        {
+          "id": "KSC-8.1.2d",
+          "relation": "direct"
+        },
+        {
+          "id": "KSC-8.1.2i",
+          "relation": "direct"
+        },
+        {
+          "id": "KSC-8.1.2j",
+          "relation": "direct"
+        },
+        {
+          "id": "KSC-8e",
+          "relation": "direct"
+        }
       ],
       "cra": [],
       "osps": [],
@@ -788,11 +1005,20 @@
         "pl": "Monitorowanie w trybie ciągłym i obsługa incydentów"
       },
       "ksc": [
-        "KSC-8.1.2g",
-        "KSC-8.1.4"
+        {
+          "id": "KSC-8.1.2g",
+          "relation": "direct"
+        },
+        {
+          "id": "KSC-8.1.4",
+          "relation": "direct"
+        }
       ],
       "cra": [
-        "CRA-I.1.2l"
+        {
+          "id": "CRA-I.1.2l",
+          "relation": "direct"
+        }
       ],
       "osps": [],
       "outcome": "manual",
@@ -811,7 +1037,10 @@
         "pl": "Inwentaryzacja aktywów"
       },
       "ksc": [
-        "KSC-8.1.2m"
+        {
+          "id": "KSC-8.1.2m",
+          "relation": "direct"
+        }
       ],
       "cra": [],
       "osps": [],
@@ -831,14 +1060,32 @@
         "pl": "Dostarczanie aktualizacji zabezpieczeń, komunikaty i okres wsparcia"
       },
       "ksc": [
-        "KSC-8.1.5b"
+        {
+          "id": "KSC-8.1.5b",
+          "relation": "direct"
+        }
       ],
       "cra": [
-        "CRA-I.1.2c",
-        "CRA-I.2.4",
-        "CRA-I.2.7",
-        "CRA-I.2.8",
-        "CRA-13.8"
+        {
+          "id": "CRA-I.1.2c",
+          "relation": "direct"
+        },
+        {
+          "id": "CRA-I.2.4",
+          "relation": "direct"
+        },
+        {
+          "id": "CRA-I.2.7",
+          "relation": "direct"
+        },
+        {
+          "id": "CRA-I.2.8",
+          "relation": "direct"
+        },
+        {
+          "id": "CRA-13.8",
+          "relation": "direct"
+        }
       ],
       "osps": [],
       "outcome": "manual",
@@ -857,11 +1104,20 @@
         "pl": "Bezpieczna konfiguracja domyślna i ograniczona powierzchnia ataku"
       },
       "ksc": [
-        "KSC-8.1.2b"
+        {
+          "id": "KSC-8.1.2b",
+          "relation": "direct"
+        }
       ],
       "cra": [
-        "CRA-I.1.2b",
-        "CRA-I.1.2j"
+        {
+          "id": "CRA-I.1.2b",
+          "relation": "direct"
+        },
+        {
+          "id": "CRA-I.1.2j",
+          "relation": "direct"
+        }
       ],
       "osps": [],
       "outcome": "manual",
@@ -880,7 +1136,10 @@
         "pl": "Ustawowy audyt bezpieczeństwa"
       },
       "ksc": [
-        "KSC-15.1"
+        {
+          "id": "KSC-15.1",
+          "relation": "direct"
+        }
       ],
       "cra": [],
       "osps": [],
@@ -896,8 +1155,8 @@
   "evidence_files": [
     {
       "path": "repo-checks.json",
-      "sha256": "91ebda29928f1844bf25f6a5d1ff24a9104ffd54ab6851d2188de0a940593698",
-      "bytes": 1769
+      "sha256": "055345652c12476e20a621558b79f533c309b1b473aa54e3891e01d9eb1cc81c",
+      "bytes": 1911
     },
     {
       "path": "sbom.cdx.json",
@@ -908,6 +1167,11 @@
       "path": "scorecard.json",
       "sha256": "43811c3da7880afe9f2e58fa5709452403229a852070bb53fc902e7a7ffc7d74",
       "bytes": 5328
+    },
+    {
+      "path": "secrets.gitleaks.baseline.json",
+      "sha256": "6d1f2c23df6e1accdf27a32063d4d31b415fc6299e67d46cc9705fb8b518f381",
+      "bytes": 706
     },
     {
       "path": "secrets.gitleaks.json",

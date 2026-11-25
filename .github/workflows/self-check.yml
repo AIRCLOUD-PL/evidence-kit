@@ -19,7 +19,7 @@ concurrency:
 
 jobs:
   evidence:
-    uses: ./.github/workflows/evidence.yml
+    uses: ./.github/workflows/evidence.yml # zizmor: ignore[self-repository] (actionlint-compatible local call)
     permissions:
       contents: read
       actions: read
@@ -27,5 +27,6 @@ jobs:
       kit-repository: ${{ github.repository }}
       kit-ref: ${{ github.sha }}
       skip-dirs: tests/fixtures,examples # sample SBOMs with deliberately vulnerable packages
+      harden-runner: true # public repository: free tier
       fail-on: critical
       fail-on-secrets: true

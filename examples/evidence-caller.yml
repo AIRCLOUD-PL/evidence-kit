@@ -1,7 +1,10 @@
 # Copy to .github/workflows/evidence.yml in your repository.
 #
-# Pin to a full commit SHA of a release (security best practice) and pass the same
-# value as kit-ref. Tags are shown here for readability only.
+# Replace both <FULL_COMMIT_SHA_OF_v0.1.0> placeholders with the 40-character commit SHA
+# of the release. Tags are mutable and are rejected by the workflow. Get the SHA with:
+#
+#   gh api repos/AIRCLOUD-PL/evidence-kit/commits/v0.1.0 --jq .sha
+#   # or: git ls-remote https://github.com/AIRCLOUD-PL/evidence-kit 'refs/tags/v0.1.0^{}'
 name: evidence
 
 on:
@@ -16,13 +19,14 @@ permissions:
 
 jobs:
   evidence:
-    uses: lkolo-prez/evidence-kit/.github/workflows/evidence.yml@v0.1.0 # replace with the release SHA
+    uses: AIRCLOUD-PL/evidence-kit/.github/workflows/evidence.yml@<FULL_COMMIT_SHA_OF_v0.1.0> # v0.1.0
     permissions:
       contents: read
       actions: read
     with:
-      kit-ref: v0.1.0 # same ref as above
-      # vex-file: .vex/openvex.json   # optional: suppress triaged "not affected" CVEs
+      kit-ref: <FULL_COMMIT_SHA_OF_v0.1.0> # the same SHA as in `uses:`
+      # vex-file: .vex/openvex.json   # optional: suppress triaged "not affected" CVEs (justified)
       # fail-on: high                 # optional: fail on HIGH/CRITICAL (default: report only)
       # fail-on-secrets: true         # optional: fail when gitleaks finds secrets
       # lang: pl,en                   # optional: Polish report first in the job summary
+      # harden-runner: true           # optional: StepSecurity egress audit (telemetry; paid for private repos)

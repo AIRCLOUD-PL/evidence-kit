@@ -13,6 +13,18 @@ except ImportError:  # pragma: no cover - exercised only without PyYAML
     yaml = None
 
 LANGS = ("en", "pl")
+RELATIONS = ("direct", "supporting")
+
+
+def refs_of(control: dict[str, Any], key: str) -> list[dict[str, str]]:
+    """Normalise ``ksc``/``cra`` entries: "ID" means direct, {id, relation} is explicit."""
+    out = []
+    for entry in control.get(key) or []:
+        if isinstance(entry, str):
+            out.append({"id": entry, "relation": "direct"})
+        elif isinstance(entry, dict):
+            out.append({"id": str(entry.get("id", "")), "relation": str(entry.get("relation", ""))})
+    return out
 
 
 class MappingError(ValueError):
@@ -77,7 +89,13 @@ def validate(doc: Any) -> list[str]:
         if not (c.get("ksc") or c.get("cra")):
             p.append(f"control {cid}: maps to neither KSC nor CRA")
         for key, prefix in (("ksc", "KSC-"), ("cra", "CRA-")):
-            for rid in c.get(key) or []:
+            raw = c.get(key) or []
+            if any(not isinstance(e, (str, dict)) for e in raw):
+                p.append(f"control {cid}: {key} entries must be an id or {{id, relation}}")
+            for ref in refs_of(c, key):
+                rid = ref["id"]
+                if ref["relation"] not in RELATIONS:
+                    p.append(f"control {cid}: {rid} relation must be direct or supporting")
                 if rid not in refs:
                     p.append(f"control {cid}: unknown reference {rid}")
                 elif not rid.startswith(prefix):

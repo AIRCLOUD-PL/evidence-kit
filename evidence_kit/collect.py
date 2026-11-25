@@ -62,6 +62,16 @@ SUPPLIER_NAME = re.compile(
 )
 RUNBOOK_NAME = re.compile(r"(incident|incydent)[\w.-]*\.md$", re.I)
 
+# Scanner configuration in the scanned repository that can change results (FR-018).
+# Trivy configs are never applied by the workflow; ignore files and gitleaks configs are
+# applied and every suppression they cause is reported.
+SCAN_CONFIG = {
+    "trivy_config": ("trivy.yaml", "trivy.yml"),
+    "trivy_ignore": (".trivyignore", ".trivyignore.yaml"),
+    "gitleaks_config": (".gitleaks.toml",),
+    "gitleaks_ignore": (".gitleaksignore",),
+}
+
 
 def _walk(root: Path, start: str, depth: int) -> list[Path]:
     base = (root / start).resolve()
@@ -253,6 +263,7 @@ def collect(root: Path, env: dict[str, str] | None = None) -> dict[str, Any]:
             "supplier_register": {"paths": suppliers},
             "incident_runbook": {"paths": runbooks},
         },
+        "scan_config": {key: _existing(root, names) for key, names in SCAN_CONFIG.items()},
         "meta": {
             "kit_version": __version__,
             "repository": env.get("GITHUB_REPOSITORY", ""),
@@ -270,6 +281,8 @@ def collect(root: Path, env: dict[str, str] | None = None) -> dict[str, Any]:
             },
             "vex_file": env.get("EK_VEX_FILE", ""),
             "scorecard_enabled": env.get("EK_SCORECARD_ENABLED", ""),
+            # Notes from workflow steps, e.g. EK_NOTE_TOOLS="unsupported runner architecture".
+            "notes": {k[len("EK_NOTE_") :].lower(): v for k, v in sorted(env.items()) if k.startswith("EK_NOTE_")},
         },
     }
 

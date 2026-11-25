@@ -15,14 +15,14 @@ suppliers:
     last_assessment: 2026-11-25
     exit_plan: run the CLI locally (python -m evidence_kit) on any CI
   - id: SUP-002
-    name: aquasecurity/trivy-action + Trivy
+    name: Trivy (aquasecurity/trivy release binary)
     service: SBOM generation and vulnerability scan
     type: open-source-component
     criticality: high
     data_access: none
     contract_ref: Apache-2.0
-    known_vulnerabilities_considered: pinned to commit SHA (v0.36.0) and Trivy v0.70.0; trivy-action tags were force-pushed to malicious commits on 2026-03-19 (GHSA-69fq-xp46-6x23), so tags are never trusted
-    quality_assessment: OpenSSF Scorecard of upstream, release notes
+    known_vulnerabilities_considered: v0.76.2 pinned by SHA-256 (x64, arm64) in evidence.yml; trivy-action/setup-trivy tags were force-pushed to malicious commits on 2026-03-19 (GHSA-69fq-xp46-6x23), so no Trivy action is used and tags are never trusted
+    quality_assessment: OpenSSF Scorecard of upstream, release notes, vendor advisories before each bump
     last_assessment: 2026-11-25
     exit_plan: anchore/syft for SBOM, google/osv-scanner for vulnerabilities
   - id: SUP-003
@@ -32,7 +32,7 @@ suppliers:
     criticality: medium
     data_access: secrets
     contract_ref: MIT
-    known_vulnerabilities_considered: CLI pinned to 8.30.1 with SHA-256 verification
+    known_vulnerabilities_considered: CLI 8.30.1 pinned by SHA-256 (x64, arm64)
     quality_assessment: OpenSSF Scorecard of upstream
     last_assessment: 2026-11-25
     exit_plan: Trivy secret scanner
@@ -48,7 +48,7 @@ suppliers:
     last_assessment: 2026-11-25
     exit_plan: optional step (run-scorecard false)
   - id: SUP-005
-    name: actions/checkout, actions/upload-artifact, step-security/harden-runner
+    name: actions/checkout, actions/upload-artifact
     service: workflow building blocks
     type: open-source-component
     criticality: medium
@@ -69,3 +69,25 @@ suppliers:
     quality_assessment: widely used
     last_assessment: 2026-11-25
     exit_plan: convert the mapping to JSON (stdlib)
+  - id: SUP-007
+    name: StepSecurity (step-security/harden-runner), optional
+    service: "runner egress audit, only with harden-runner set to true (and in the CI of this repository)"
+    type: service
+    criticality: low
+    data_access: internal   # receives telemetry about network connections and processes of the job
+    contract_ref: StepSecurity terms; free for public repositories, a plan is needed for private repositories
+    known_vulnerabilities_considered: pinned to commit SHA (v2.23.0, fixes GHSA-46g3-37rh-v698, GHSA-g699-3x6g-wm3g, GHSA-cpmj-h4f6-r6pq, GHSA-mxr3-8whj-j74r)
+    quality_assessment: widely used; data recipient, so disabled by default for callers
+    last_assessment: 2026-11-25
+    exit_plan: leave `harden-runner` false (default)
+  - id: SUP-008
+    name: zizmor, actionlint
+    service: workflow security audit and lint (CI of this repository only)
+    type: open-source-component
+    criticality: low
+    data_access: none
+    contract_ref: MIT
+    known_vulnerabilities_considered: zizmor hash-pinned in requirements-dev.txt; actionlint binary SHA-256 pinned in ci.yml
+    quality_assessment: widely used
+    last_assessment: 2026-11-25
+    exit_plan: n/a

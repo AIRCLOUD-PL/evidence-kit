@@ -22,6 +22,7 @@ FILES = {
     "sbom": "sbom.cdx.json",
     "vulns": "vulnerabilities.trivy.json",
     "secrets": "secrets.gitleaks.json",
+    "secrets_baseline": "secrets.gitleaks.baseline.json",
     "scorecard": "scorecard.json",
     "repo": "repo-checks.json",
 }
@@ -59,6 +60,9 @@ def result(outcome: str, en: str, pl: str, **data: Any) -> dict[str, Any]:
 def _missing(ev: Evidence, key: str) -> dict[str, Any] | None:
     if key in ev.errors:
         msg = ev.errors[key]
+        notes = ((ev.get("repo") or {}).get("meta") or {}).get("notes") or {}
+        if notes:  # reason recorded by a workflow step, e.g. unsupported runner architecture
+            msg += "; " + "; ".join(f"{k}: {v}" for k, v in sorted(notes.items()))
         return result("not-run", f"No input: {msg}.", f"Brak danych wejściowych: {msg}.", error=msg)
     return None
 
@@ -122,20 +126,50 @@ def _sbom_tool(bom: dict[str, Any]) -> str:
 
 # --------------------------------------------------------------------------- vulnerabilities
 
+VEX_STATUSES = {"not_affected", "fixed", "under_investigation", "affected"}
+
+
+def _suppression_kind(m: dict[str, Any]) -> str:
+    """Classify a Trivy suppressed finding by source (FR-018)."""
+    source = Path(str(m.get("Source") or "")).name.lower()
+    status = str(m.get("Status") or "").lower()
+    if source.startswith(".trivyignore") or status == "ignored":
+        return "ignore-file"
+    if status in VEX_STATUSES:
+        return "vex"
+    return "other"
+
 
 def vuln_counts(report: Any) -> dict[str, Any]:
-    """Count unique vulnerabilities in a Trivy JSON report."""
+    """Count unique vulnerabilities and suppressed findings in a Trivy JSON report."""
     seen: set[tuple[str, str, str]] = set()
     sev: Counter[str] = Counter()
     fixable: Counter[str] = Counter()
-    suppressed = 0
+    by_kind: Counter[str] = Counter()
+    suppressed: list[dict[str, str]] = []
     top: list[dict[str, str]] = []
     results = (report.get("Results") or []) if isinstance(report, dict) else []
     for r in results:
         if not isinstance(r, dict):
             continue
-        # Trivy >= 0.50 names it ExperimentalModifiedFindings (needs --show-suppressed).
-        suppressed += len(r.get("ExperimentalModifiedFindings") or r.get("ModifiedFindings") or [])
+        # Trivy >= 0.50 names it ExperimentalModifiedFindings (requires --show-suppressed).
+        for m in r.get("ExperimentalModifiedFindings") or r.get("ModifiedFindings") or []:
+            if not isinstance(m, dict):
+                continue
+            kind = _suppression_kind(m)
+            by_kind[kind] += 1
+            f = m.get("Finding") or {}
+            suppressed.append(
+                {
+                    "id": f.get("VulnerabilityID", ""),
+                    "package": f.get("PkgName", ""),
+                    "severity": (f.get("Severity") or "UNKNOWN").upper(),
+                    "kind": kind,
+                    "status": m.get("Status", ""),
+                    "statement": m.get("Statement", ""),
+                    "source": Path(str(m.get("Source") or "")).name,
+                }
+            )
         for v in r.get("Vulnerabilities") or []:
             key = (v.get("VulnerabilityID", ""), v.get("PkgName", ""), v.get("InstalledVersion", ""))
             if key in seen:
@@ -161,9 +195,18 @@ def vuln_counts(report: Any) -> dict[str, Any]:
         "by_severity": {s: sev.get(s, 0) for s in SEVERITIES},
         "fixable": {s: fixable.get(s, 0) for s in SEVERITIES},
         "total": sum(sev.values()),
-        "suppressed_by_vex": suppressed,
+        "suppressed": {k: by_kind.get(k, 0) for k in ("vex", "ignore-file", "other")},
+        "suppressed_findings": suppressed[:50],
         "top": top[:25],
     }
+
+
+def _scan_config(ev: Evidence) -> dict[str, list[str]]:
+    return (ev.get("repo") or {}).get("scan_config") or {}
+
+
+def _at_least_warn(outcome: str) -> str:
+    return "warn" if outcome == "pass" else outcome
 
 
 def check_vulnerabilities(ev: Evidence, control: dict[str, Any]) -> dict[str, Any]:
@@ -177,27 +220,59 @@ def check_vulnerabilities(ev: Evidence, control: dict[str, Any]) -> dict[str, An
     warn_s = [s.upper() for s in params.get("warn_severities", ["MEDIUM", "LOW", "UNKNOWN"])]
     c = vuln_counts(rep)
     meta = (ev.get("repo") or {}).get("meta") or {}
+    cfg = _scan_config(ev)
     c["vex_file"] = meta.get("vex_file") or ""
+    c["trivy_ignore_files"] = cfg.get("trivy_ignore") or []
+    c["trivy_config_files_not_applied"] = cfg.get("trivy_config") or []
     bs = c["by_severity"]
+    sup = c["suppressed"]
     summary_en = ", ".join(f"{bs[s]} {s.lower()}" for s in SEVERITIES if bs[s]) or "none"
     summary_pl = ", ".join(f"{s.lower()}: {bs[s]}" for s in SEVERITIES if bs[s]) or "brak"
-    vex_en = f"; {c['suppressed_by_vex']} suppressed by VEX" if c["suppressed_by_vex"] else ""
-    vex_pl = f"; wyłączone przez VEX: {c['suppressed_by_vex']}" if c["suppressed_by_vex"] else ""
     if any(bs.get(s, 0) for s in fail_s):
         outcome = "fail"
     elif any(bs.get(s, 0) for s in warn_s):
         outcome = "warn"
     else:
         outcome = "pass"
-    return result(
-        outcome,
-        f"Known vulnerabilities: {summary_en}{vex_en}.",
-        f"Znane podatności: {summary_pl}{vex_pl}.",
-        **c,
-    )
+    en: list[str] = [f"Known vulnerabilities: {summary_en}."]
+    pl: list[str] = [f"Znane podatności: {summary_pl}."]
+    if sup["vex"]:
+        en.append(f"Suppressed by VEX: {sup['vex']}.")
+        pl.append(f"Wyłączone przez VEX: {sup['vex']}.")
+    if sup["ignore-file"] or sup["other"]:
+        # Ignore files carry no justification: never a silent pass.
+        outcome = _at_least_warn(outcome)
+        n = sup["ignore-file"] + sup["other"]
+        src = ", ".join(c["trivy_ignore_files"]) or "ignore file"
+        en.append(f"Suppressed by {src}: {n} (review the list).")
+        pl.append(f"Wyłączone przez {src}: {n} (sprawdź listę).")
+    if c["trivy_config_files_not_applied"]:
+        files = ", ".join(c["trivy_config_files_not_applied"])
+        en.append(f"{files} in the repository was not applied.")
+        pl.append(f"{files} z repozytorium nie został zastosowany.")
+    return result(outcome, " ".join(en), " ".join(pl), **c)
 
 
 # --------------------------------------------------------------------------- secrets
+
+
+def _locations(findings: list[Any], limit: int = 20) -> list[dict[str, Any]]:
+    return [
+        {
+            "rule": f.get("RuleID", "?"),
+            "file": f.get("File", ""),
+            "line": f.get("StartLine", 0),
+            "commit": (f.get("Commit") or "")[:12],
+        }
+        for f in findings[:limit]
+        if isinstance(f, dict)
+    ]
+
+
+def _fingerprint(f: dict[str, Any]) -> str:
+    if f.get("Fingerprint"):
+        return str(f["Fingerprint"])
+    return ":".join(str(f.get(k, "")) for k in ("Commit", "File", "RuleID", "StartLine"))
 
 
 def check_secrets(ev: Evidence, control: dict[str, Any]) -> dict[str, Any]:
@@ -208,33 +283,51 @@ def check_secrets(ev: Evidence, control: dict[str, Any]) -> dict[str, Any]:
         findings = []
     if not isinstance(findings, list):
         return result("not-run", "Not a gitleaks JSON report.", "To nie jest raport JSON gitleaks.")
-    rules = Counter(f.get("RuleID", "?") for f in findings if isinstance(f, dict))
-    where = [
-        {
-            "rule": f.get("RuleID", "?"),
-            "file": f.get("File", ""),
-            "line": f.get("StartLine", 0),
-            "commit": (f.get("Commit") or "")[:12],
-        }
-        for f in findings[:20]
-        if isinstance(f, dict)
-    ]
+    findings = [f for f in findings if isinstance(f, dict)]
+    rules = Counter(f.get("RuleID", "?") for f in findings)
+    cfg = _scan_config(ev)
+    repo_cfg = (cfg.get("gitleaks_config") or []) + (cfg.get("gitleaks_ignore") or [])
+
+    # Baseline: default rules, no repository allowlists (FR-018).
+    baseline = ev.get("secrets_baseline")
+    if isinstance(baseline, list):
+        seen = {_fingerprint(f) for f in findings}
+        hidden = [f for f in baseline if isinstance(f, dict) and _fingerprint(f) not in seen]
+        baseline_state = "ok"
+    else:
+        hidden = []
+        baseline_state = "not-available"
+    data: dict[str, Any] = {
+        "findings": len(findings),
+        "by_rule": dict(rules),
+        "locations": _locations(findings),
+        "repo_config_files": repo_cfg,
+        "baseline": baseline_state,
+        "suppressed_by_repo_config": len(hidden),
+        "suppressed_locations": _locations(hidden),
+    }
     n = len(findings)
-    if n == 0:
-        return result(
-            "pass",
-            "No secrets found in the git history.",
-            "Nie znaleziono sekretów w historii git.",
-            findings=0,
+    if n:
+        outcome = "fail"
+        en = f"{n} potential secret(s) in git history (rule types: {len(rules)}). Rotate and remove them."
+        pl = f"Potencjalne sekrety w historii git: {n} (typy reguł: {len(rules)}). Unieważnij je i usuń."
+    else:
+        outcome = "pass"
+        en = "No secrets found in the git history."
+        pl = "Nie znaleziono sekretów w historii git."
+    if hidden:
+        outcome = _at_least_warn(outcome)
+        src = ", ".join(repo_cfg) or "repository configuration"
+        en += f" {len(hidden)} finding(s) of the default rules are suppressed by {src} (review the list)."
+        pl += f" Wyłączone przez {src}: {len(hidden)} wynik(ów) reguł domyślnych (sprawdź listę)."
+    elif repo_cfg:
+        en += f" Repository config {', '.join(repo_cfg)} applied" + (
+            "; nothing suppressed." if baseline_state == "ok" else "; baseline scan not available."
         )
-    return result(
-        "fail",
-        f"{n} potential secret(s) in git history (rule types: {len(rules)}). Rotate and remove them.",
-        f"Potencjalne sekrety w historii git: {n} (typy reguł: {len(rules)}). Unieważnij je i usuń.",
-        findings=n,
-        by_rule=dict(rules),
-        locations=where,
-    )
+        pl += f" Zastosowano konfigurację {', '.join(repo_cfg)}" + (
+            "; nic nie wyłączono." if baseline_state == "ok" else "; brak skanu bazowego."
+        )
+    return result(outcome, en, pl, **data)
 
 
 # --------------------------------------------------------------------------- scorecard

@@ -2,8 +2,11 @@
 #
 # Each control maps to provisions of:
 #   - KSC: ustawa z dnia 5 lipca 2018 r. o krajowym systemie cyberbezpieczeństwa
-#     (t.j. Dz.U. 2024 poz. 1077), as amended by the act of 23 January 2026,
+#     (t.j. Dz.U. 2026 poz. 20), as amended by the act of 23 January 2026,
 #     Dz.U. 2026 poz. 252 (Polish NIS2 transposition, in force 2026-04-03).
+#     Later amendments Dz.U. 2026 poz. 815, 1003 and 1206 were checked: they change
+#     art. 15 ust. 7, art. 26 ust. 3 and an annex, not the provisions cited here
+#     (art. 8, 11, 12a-12c, 15 ust. 1).
 #   - CRA: Regulation (EU) 2024/2847 (Cyber Resilience Act).
 #   - OSPS: OpenSSF Open Source Project Security Baseline (cross-reference only).
 #
@@ -13,6 +16,9 @@
 #
 # The mapping is INFORMATIVE: a control "supports" a provision; it never proves
 # that an organisation fulfils it. See `disclaimer`.
+#
+# Entries in `ksc` / `cra`: "ID" = relation `direct` (the control produces the artefact
+# the provision names); {id: ID, relation: supporting} = contributes evidence only.
 #
 # Field `status`: auto   = evaluated by the kit from machine-readable evidence,
 #                 manual = a human must attach the evidence listed in `evidence`.
@@ -38,7 +44,8 @@ sources:
       en: Polish Act on the National Cybersecurity System (KSC) as amended by Dz.U. 2026 poz. 252
       pl: Ustawa o krajowym systemie cyberbezpieczeństwa w brzmieniu nadanym ustawą z 23.01.2026 r. (Dz.U. 2026 poz. 252)
     url: https://eli.gov.pl/eli/DU/2026/252/ogl
-    base_act_url: https://eli.gov.pl/eli/DU/2024/1077/ogl
+    base_act_url: https://eli.gov.pl/eli/DU/2026/20/ogl
+    later_amendments: [Dz.U. 2026 poz. 815, Dz.U. 2026 poz. 1003, Dz.U. 2026 poz. 1206]
   cra:
     title:
       en: Regulation (EU) 2024/2847 (Cyber Resilience Act)
@@ -151,7 +158,7 @@ references:
     pl: coroczne, udokumentowane szkolenie kierownika podmiotu
   KSC-11.1.4:
     cite: art. 11 ust. 1 pkt 4-4c
-    en: "serious incident: early warning within 24 h, notification within 72 h, final report within one month"
+    en: "significant incident (incydent poważny): early warning within 24 h, notification within 72 h, final report within one month"
     pl: "incydent poważny: wczesne ostrzeżenie do 24 h, zgłoszenie do 72 h, sprawozdanie końcowe w ciągu miesiąca"
   KSC-15.1:
     cite: art. 15 ust. 1
@@ -159,6 +166,11 @@ references:
     pl: audyt bezpieczeństwa systemu informacyjnego co najmniej raz na 3 lata (podmioty kluczowe)
 
   # --- CRA (EU regulation) ----------------------------------------------------
+  CRA-13.1:
+    cite: Art. 13(1)
+    cite_pl: art. 13 ust. 1
+    en: product designed, developed and produced in accordance with Annex I Part I (process obligation)
+    pl: projektowanie, rozwój i produkcja zgodnie z zał. I część I (obowiązek procesowy)
   CRA-13.2:
     cite: Art. 13(2)-(3)
     cite_pl: art. 13 ust. 2-3
@@ -284,8 +296,8 @@ controls:
       en: Software bill of materials (CycloneDX)
       pl: Wykaz komponentów oprogramowania (SBOM, CycloneDX)
     evidence: [sbom.cdx.json]
-    ksc: [KSC-8.1.2e, KSC-8.1.2m, KSC-8.2]
-    cra: [CRA-I.2.1, CRA-13.5]
+    ksc: [{id: KSC-8.1.2e, relation: supporting}, {id: KSC-8.1.2m, relation: supporting}, {id: KSC-8.2, relation: supporting}]
+    cra: [CRA-I.2.1, {id: CRA-13.5, relation: supporting}]
     osps: [OSPS-QA-02.01, OSPS-QA-02.02]
 
   - id: EK-VULN
@@ -298,8 +310,8 @@ controls:
     params:
       fail_severities: [CRITICAL, HIGH]
       warn_severities: [MEDIUM, LOW, UNKNOWN]
-    ksc: [KSC-8.1.3, KSC-8.1.5b, KSC-8.1.5d]
-    cra: [CRA-I.1.2a, CRA-I.2.1, CRA-I.2.2]
+    ksc: [KSC-8.1.3, {id: KSC-8.1.5b, relation: supporting}, {id: KSC-8.1.5d, relation: supporting}]
+    cra: [CRA-I.2.1, {id: CRA-I.1.2a, relation: supporting}, {id: CRA-I.2.2, relation: supporting}]
     osps: [OSPS-VM-05.03, OSPS-VM-04.02]
 
   - id: EK-SECRETS
@@ -308,9 +320,9 @@ controls:
     title:
       en: No secrets in git history (gitleaks)
       pl: Brak sekretów w historii git (gitleaks)
-    evidence: [secrets.gitleaks.json]
-    ksc: [KSC-8.1.2n, KSC-8.1.2j, KSC-8.1.5a]
-    cra: [CRA-I.1.2d, CRA-I.1.2e]
+    evidence: [secrets.gitleaks.json, secrets.gitleaks.baseline.json]
+    ksc: [{id: KSC-8.1.2n, relation: supporting}, {id: KSC-8.1.2j, relation: supporting}, {id: KSC-8.1.5a, relation: supporting}]
+    cra: [{id: CRA-13.1, relation: supporting}, {id: CRA-I.1.2d, relation: supporting}, {id: CRA-I.1.2e, relation: supporting}]
     osps: [OSPS-BR-07.01]
 
   - id: EK-SCORECARD
@@ -323,8 +335,8 @@ controls:
     params:
       pass_min: 7.0
       warn_min: 4.0
-    ksc: [KSC-8.1.2b, KSC-8.1.2h]
-    cra: [CRA-I.2.3]
+    ksc: [{id: KSC-8.1.2b, relation: supporting}, {id: KSC-8.1.2h, relation: supporting}]
+    cra: [{id: CRA-I.2.3, relation: supporting}]
     osps: []
 
   - id: EK-SECURITY-POLICY
@@ -334,7 +346,7 @@ controls:
       en: Security policy with a reporting contact (SECURITY.md)
       pl: Polityka bezpieczeństwa z kontaktem do zgłoszeń (SECURITY.md)
     evidence: [repo-checks.json]
-    ksc: [KSC-8.1.3, KSC-8.1.4]
+    ksc: [{id: KSC-8.1.3, relation: supporting}, {id: KSC-8.1.4, relation: supporting}]
     cra: [CRA-I.2.6, CRA-13.17]
     osps: [OSPS-VM-02.01, OSPS-VM-03.01]
 
@@ -345,8 +357,8 @@ controls:
       en: Coordinated vulnerability disclosure (CVD) policy
       pl: Polityka skoordynowanego ujawniania podatności (CVD)
     evidence: [repo-checks.json]
-    ksc: [KSC-8.1.3, KSC-8.1.5d]
-    cra: [CRA-I.2.5, CRA-13.8]
+    ksc: [{id: KSC-8.1.3, relation: supporting}, {id: KSC-8.1.5d, relation: supporting}]
+    cra: [CRA-I.2.5, {id: CRA-13.8, relation: supporting}]
     osps: [OSPS-VM-01.01]
 
   - id: EK-SECURITY-TXT
@@ -356,8 +368,8 @@ controls:
       en: security.txt (RFC 9116) with Contact and valid Expires
       pl: security.txt (RFC 9116) z polem Contact i ważnym Expires
     evidence: [repo-checks.json]
-    ksc: [KSC-8.1.3]
-    cra: [CRA-I.2.6, CRA-13.17]
+    ksc: [{id: KSC-8.1.3, relation: supporting}]
+    cra: [{id: CRA-I.2.6, relation: supporting}, {id: CRA-13.17, relation: supporting}]
     osps: []
 
   - id: EK-CODEOWNERS
@@ -367,8 +379,8 @@ controls:
       en: Code ownership defined (CODEOWNERS)
       pl: Określeni właściciele kodu (CODEOWNERS)
     evidence: [repo-checks.json]
-    ksc: [KSC-8.1.2n, KSC-8.1.5c]
-    cra: [CRA-I.1.2f]
+    ksc: [{id: KSC-8.1.2n, relation: supporting}, {id: KSC-8.1.5c, relation: supporting}]
+    cra: [{id: CRA-13.1, relation: supporting}, {id: CRA-I.1.2f, relation: supporting}]
     osps: []
 
   - id: EK-BRANCH-PROTECTION
@@ -378,8 +390,8 @@ controls:
       en: Default branch protected (branch protection or ruleset)
       pl: Chroniona gałąź domyślna (ochrona gałęzi lub ruleset)
     evidence: [repo-checks.json]
-    ksc: [KSC-8.1.5c, KSC-8.1.2n]
-    cra: [CRA-I.1.2f, CRA-I.1.2d]
+    ksc: [{id: KSC-8.1.5c, relation: supporting}, {id: KSC-8.1.2n, relation: supporting}]
+    cra: [{id: CRA-13.1, relation: supporting}, {id: CRA-I.1.2d, relation: supporting}, {id: CRA-I.1.2f, relation: supporting}]
     osps: [OSPS-AC-03.01, OSPS-AC-03.02, OSPS-QA-07.01]
 
   - id: EK-DEP-UPDATES
@@ -389,8 +401,8 @@ controls:
       en: Automated dependency updates (Dependabot or Renovate)
       pl: Automatyczne aktualizacje zależności (Dependabot lub Renovate)
     evidence: [repo-checks.json]
-    ksc: [KSC-8.1.5b]
-    cra: [CRA-I.2.2]
+    ksc: [{id: KSC-8.1.5b, relation: supporting}]
+    cra: [{id: CRA-I.2.2, relation: supporting}]
     osps: []
 
   - id: EK-SUPPLIERS
@@ -400,8 +412,8 @@ controls:
       en: Supplier register present (content needs human review)
       pl: Rejestr dostawców w repozytorium (treść wymaga oceny człowieka)
     evidence: [repo-checks.json]
-    ksc: [KSC-8.1.2e, KSC-8.2]
-    cra: [CRA-13.5]
+    ksc: [{id: KSC-8.1.2e, relation: supporting}, {id: KSC-8.2, relation: supporting}]
+    cra: [{id: CRA-13.5, relation: supporting}]
     osps: []
 
   - id: EK-INCIDENT-RUNBOOK
@@ -411,8 +423,8 @@ controls:
       en: Incident and vulnerability reporting runbook present
       pl: Procedura zgłaszania incydentów i podatności w repozytorium
     evidence: [repo-checks.json]
-    ksc: [KSC-8.1.4, KSC-11.1.4]
-    cra: [CRA-14]
+    ksc: [{id: KSC-8.1.4, relation: supporting}, {id: KSC-11.1.4, relation: supporting}]
+    cra: [{id: CRA-14, relation: supporting}]
     osps: []
 
   # ===================== manual =====================

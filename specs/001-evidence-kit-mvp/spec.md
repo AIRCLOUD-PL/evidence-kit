@@ -52,7 +52,8 @@ the related controls from `fail`/`manual` to `pass`.
 ### Functional Requirements
 - **FR-001**: The repository MUST provide a reusable workflow `.github/workflows/evidence.yml`
   (`on: workflow_call`) with documented inputs and least-privilege permissions, plus an
-  example caller in `examples/`.
+  example caller in `examples/`. `kit-ref` MUST be required and validated as a full 40-hex
+  commit SHA; optional third-party telemetry (harden-runner) MUST be opt-in.
 - **FR-002**: The workflow MUST generate a CycloneDX JSON SBOM of the caller repository
   (Trivy, filesystem mode).
 - **FR-003**: The workflow MUST scan the SBOM for known vulnerabilities (Trivy) and MUST
@@ -67,7 +68,8 @@ the related controls from `fail`/`manual` to `pass`.
   and - via the GitHub API when reachable - default-branch protection or rulesets.
 - **FR-007**: `mappings/controls.yaml` MUST map every control to KSC and CRA references with
   fields `evidence` and `status` (`auto`|`manual`), and MUST carry the disclaimer and source
-  URLs. References MUST be resolvable to a label (no free-text citations in controls).
+  URLs. References MUST be resolvable to a label (no free-text citations in controls). Each
+  reference has a `relation` (`direct`|`supporting`) shown in the report.
 - **FR-008**: The generator MUST produce `evidence-report.md` (EN) and `evidence-report.pl.md`
   (PL) from tool outputs + mapping, including a summary, per-control results, manual controls,
   evidence file hashes and sources.
@@ -89,7 +91,17 @@ the related controls from `fail`/`manual` to `pass`.
 - **FR-015**: The kit's own CI MUST lint (ruff, actionlint), run pytest, and run the evidence
   workflow on this repository (self-check).
 - **FR-016**: All third-party actions MUST be pinned to a full commit SHA with a version
-  comment; downloaded binaries MUST be checksum-verified.
+  comment, without known advisories at the pinned version; downloaded binaries (Trivy, gitleaks,
+  actionlint) MUST be verified against SHA-256 values pinned in the repository; CI MUST run zizmor.
+- **FR-017**: Code from the scanned repository MUST NOT be executed by kit steps: the kit runs
+  from `$RUNNER_TEMP` with `python3 -P`, and user inputs are validated and never written to
+  `GITHUB_ENV`. A test MUST show that a malicious `evidence_kit/` in the scanned repository cannot
+  replace the gate.
+- **FR-018**: Suppressions MUST be visible: Trivy always runs with `--show-suppressed`; findings
+  suppressed by VEX, ignore files or other sources are listed per source; a repository
+  `trivy.yaml` is not applied and is reported; gitleaks findings hidden by `.gitleaks.toml` /
+  `.gitleaksignore` are revealed by a baseline scan. Suppression without a justification
+  (ignore file, gitleaks allowlist) MUST make the control at least `warn`.
 
 ### Key Entities
 - **Control**: id, title (en/pl), `status` auto|manual, `check` (evaluator name), `evidence`
@@ -107,7 +119,8 @@ the related controls from `fail`/`manual` to `pass`.
 - Target is GitHub-hosted runners (`ubuntu-24.04`); other CI systems can run the CLI locally.
 - The kit does not decide whether an organisation is a KSC "podmiot kluczowy/ważny" or a CRA
   "manufacturer"; it only collects evidence.
-- KSC references follow the act of 5 July 2018 as amended by the act of 23 January 2026
-  (Dz.U. 2026 poz. 252, in force 3 April 2026; chapter 3 duties within 12 months, art. 33
-  ust. 1 of the amending act). CRA dates: art. 14 from 11 September 2026, the rest from
+- KSC references follow the act of 5 July 2018 (t.j. Dz.U. 2026 poz. 20) as amended by the act
+  of 23 January 2026 (Dz.U. 2026 poz. 252, in force 3 April 2026; chapter 3 duties within 12
+  months, art. 33 ust. 1 of the amending act). Later amendments Dz.U. 2026 poz. 815, 1003, 1206
+  do not change the cited provisions. CRA dates: art. 14 from 11 September 2026, the rest from
   11 December 2027 (art. 71(2)).

@@ -49,7 +49,9 @@ def test_vulnerability_counts_and_vex(sample_dir, mapping):  # V003
     assert v["by_severity"]["MEDIUM"] == 12
     assert v["by_severity"]["CRITICAL"] == 0
     assert v["total"] == 19
-    assert v["suppressed_by_vex"] == 1
+    assert v["suppressed"] == {"vex": 1, "ignore-file": 0, "other": 0}
+    assert v["suppressed_findings"][0]["id"] == "CVE-2021-33503"
+    assert v["suppressed_findings"][0]["kind"] == "vex"
     assert v["fixable"]["HIGH"] == 7
     assert v["vex_file"] == ".vex/openvex.json"
     assert v["top"][0]["severity"] == "HIGH"
@@ -118,6 +120,7 @@ def test_evidence_json_schema_and_hashes(sample_dir, mapping):  # V009
         "sbom.cdx.json",
         "scorecard.json",
         "secrets.gitleaks.json",
+        "secrets.gitleaks.baseline.json",
         "vulnerabilities.trivy.json",
     }
     for f in doc["evidence_files"]:
@@ -158,9 +161,109 @@ def test_empty_sbom_warns(sample_dir, mapping):  # V002
 def test_clean_scan_passes(sample_dir, mapping):  # V003, V004
     (sample_dir / "vulnerabilities.trivy.json").write_text('{"SchemaVersion": 2, "Results": []}')
     (sample_dir / "secrets.gitleaks.json").write_text("[]")
+    (sample_dir / "secrets.gitleaks.baseline.json").write_text("[]")
     c = by_id(build(sample_dir, mapping))
     assert c["EK-VULN"]["outcome"] == "pass"
     assert c["EK-SECRETS"]["outcome"] == "pass"
+
+
+def _set_scan_config(sample_dir, **files):
+    path = sample_dir / "repo-checks.json"
+    rc = json.loads(path.read_text())
+    rc["scan_config"].update(files)
+    path.write_text(json.dumps(rc))
+
+
+IGNORED = {
+    "Type": "vulnerability",
+    "Status": "ignored",
+    "Statement": "",
+    "Source": "/home/runner/work/app/app/.trivyignore",
+    "Finding": {"VulnerabilityID": "CVE-2099-0001", "PkgName": "demo", "Severity": "CRITICAL"},
+}
+
+
+def test_trivyignore_suppression_is_never_a_silent_pass(sample_dir, mapping):  # V018
+    rep = {
+        "SchemaVersion": 2,
+        "Results": [{"Target": "x", "Vulnerabilities": [], "ExperimentalModifiedFindings": [IGNORED]}],
+    }
+    (sample_dir / "vulnerabilities.trivy.json").write_text(json.dumps(rep))
+    _set_scan_config(sample_dir, trivy_ignore=[".trivyignore"])
+    v = by_id(build(sample_dir, mapping))["EK-VULN"]
+    assert v["outcome"] == "warn"
+    assert v["data"]["suppressed"]["ignore-file"] == 1
+    assert v["data"]["suppressed_findings"][0]["source"] == ".trivyignore"
+    assert ".trivyignore" in v["result"]["en"] and ".trivyignore" in v["result"]["pl"]
+    write(sample_dir, mapping, ["en", "pl"])
+    en = (sample_dir / "evidence-report.md").read_text(encoding="utf-8")
+    assert "CVE-2099-0001" in en and "ignore-file (`.trivyignore`)" in en
+    assert "/home/runner" not in en  # runner paths are not leaked
+
+
+def test_vex_only_suppression_keeps_outcome(sample_dir, mapping):  # V018
+    vex = dict(IGNORED, Status="not_affected", Statement="vulnerable_code_not_in_execute_path", Source="vex.json")
+    rep = {
+        "SchemaVersion": 2,
+        "Results": [{"Target": "x", "Vulnerabilities": [], "ExperimentalModifiedFindings": [vex]}],
+    }
+    (sample_dir / "vulnerabilities.trivy.json").write_text(json.dumps(rep))
+    v = by_id(build(sample_dir, mapping))["EK-VULN"]
+    assert v["outcome"] == "pass"
+    assert v["data"]["suppressed"]["vex"] == 1
+    assert "VEX: 1" in v["result"]["en"]
+
+
+def test_trivy_config_in_repo_is_reported(sample_dir, mapping):  # V018
+    _set_scan_config(sample_dir, trivy_config=["trivy.yaml"])
+    v = by_id(build(sample_dir, mapping))["EK-VULN"]
+    assert v["data"]["trivy_config_files_not_applied"] == ["trivy.yaml"]
+    assert "trivy.yaml in the repository was not applied" in v["result"]["en"]
+
+
+def test_gitleaks_allowlist_suppression_is_reported(sample_dir, mapping):  # V018
+    (sample_dir / "secrets.gitleaks.json").write_text("[]")  # repo config hid the finding
+    _set_scan_config(sample_dir, gitleaks_ignore=[".gitleaksignore"])
+    s = by_id(build(sample_dir, mapping))["EK-SECRETS"]
+    assert s["outcome"] == "warn"
+    assert s["data"]["suppressed_by_repo_config"] == 1
+    assert s["data"]["suppressed_locations"][0]["file"] == "config/settings.example.py"
+    assert ".gitleaksignore" in s["result"]["en"]
+
+
+def test_gitleaks_without_baseline_is_noted(sample_dir, mapping):  # V018
+    (sample_dir / "secrets.gitleaks.json").write_text("[]")
+    (sample_dir / "secrets.gitleaks.baseline.json").unlink()
+    _set_scan_config(sample_dir, gitleaks_config=[".gitleaks.toml"])
+    s = by_id(build(sample_dir, mapping))["EK-SECRETS"]
+    assert s["outcome"] == "pass"
+    assert s["data"]["baseline"] == "not-available"
+    assert "baseline scan not available" in s["result"]["en"]
+
+
+def test_step_notes_explain_not_run(sample_dir, mapping):  # V010
+    (sample_dir / "sbom.cdx.json").unlink()
+    path = sample_dir / "repo-checks.json"
+    rc = json.loads(path.read_text())
+    rc["meta"]["notes"] = {"tools": "unsupported runner architecture riscv64"}
+    path.write_text(json.dumps(rc))
+    sbom = by_id(build(sample_dir, mapping))["EK-SBOM"]
+    assert sbom["outcome"] == "not-run"
+    assert "riscv64" in sbom["result"]["en"]
+
+
+def test_relation_is_shown(sample_dir, mapping):  # V007
+    doc = build(sample_dir, mapping)
+    secrets = by_id(doc)["EK-SECRETS"]
+    assert {"id": "CRA-13.1", "relation": "supporting"} in secrets["cra"]
+    assert {"id": "CRA-I.1.2a", "relation": "supporting"} in by_id(doc)["EK-VULN"]["cra"]
+    assert {"id": "CRA-I.2.1", "relation": "direct"} in by_id(doc)["EK-SBOM"]["cra"]
+    write(sample_dir, mapping, ["en", "pl"])
+    en = (sample_dir / "evidence-report.md").read_text(encoding="utf-8")
+    pl = (sample_dir / "evidence-report.pl.md").read_text(encoding="utf-8")
+    assert "Annex I, Part I(2)(d) (supporting)" in en
+    assert "zał. I część I pkt 2 lit. d (pośrednio)" in pl
+    assert "Annex I, Part II(1)<br>" in en  # direct: no mark
 
 
 def _set_github(sample_dir, github):

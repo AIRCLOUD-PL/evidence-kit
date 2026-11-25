@@ -17,10 +17,21 @@ def test_reusable_workflow_contract():  # V001
     inputs = on["workflow_call"]["inputs"]
     for name in ("kit-ref", "vex-file", "run-scorecard", "fail-on", "fail-on-secrets", "lang", "scan-path"):
         assert name in inputs, name
+    # kit-ref: required full SHA, no mutable default (GHSA-69fq-xp46-6x23 lesson)
+    assert inputs["kit-ref"]["required"] is True and "default" not in inputs["kit-ref"]
+    assert inputs["kit-repository"]["default"] == "AIRCLOUD-PL/evidence-kit"
+    # harden-runner is opt-in (telemetry to StepSecurity, paid for private repos)
+    assert inputs["harden-runner"]["default"] is False
     assert wf["permissions"] == {"contents": "read"}
     job = wf["jobs"]["evidence"]
     assert job["permissions"] == {"contents": "read", "actions": "read"}
     names = [s.get("name", "") for s in job["steps"]]
+    harden = next(s for s in job["steps"] if "harden-runner" in s.get("uses", ""))
+    assert harden["if"] == "inputs.harden-runner"
+    validate = next(s for s in job["steps"] if s.get("name") == "Validate inputs")
+    assert "^[0-9a-f]{40}$" in validate["run"]
+    assert names.index("Validate inputs") < names.index("Checkout evidence-kit")
+    assert "GITHUB_ENV" not in validate["run"]  # user input never reaches GITHUB_ENV
     upload = names.index("Upload evidence bundle")
     gate = names.index("Gate")
     assert upload < gate, "gate must run after the artifact upload"
@@ -47,6 +58,28 @@ def test_no_workflow_requests_write_by_default():  # V001, V016
         assert doc["permissions"] == {"contents": "read"}, wf.name
 
 
+def test_owner_is_aircloud_pl():  # V014
+    skip = {".git", ".venv", "venv", "node_modules", ".ruff_cache", ".pytest_cache", "__pycache__"}
+    old_owner = "lkolo-prez" + "/evidence-kit"
+    hits = []
+    for p in ROOT.rglob("*"):
+        if skip & set(p.relative_to(ROOT).parts) or not p.is_file():
+            continue
+        if p.suffix in {".md", ".yml", ".yaml", ".py", ".txt", ".toml", ".json"}:
+            if old_owner in p.read_text(encoding="utf-8", errors="ignore"):
+                hits.append(str(p.relative_to(ROOT)))
+    assert hits == [], hits
+
+
+def test_examples_use_sha_placeholder():  # V001, V016
+    ex = (ROOT / "examples/evidence-caller.yml").read_text()
+    assert "evidence.yml@<FULL_COMMIT_SHA_OF_v0.1.0>" in ex
+    assert "kit-ref: <FULL_COMMIT_SHA_OF_v0.1.0>" in ex
+    assert "gh api repos/AIRCLOUD-PL/evidence-kit/commits/v0.1.0 --jq .sha" in ex
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    assert "evidence.yml@v0.1.0" not in readme and "kit-ref: v0.1.0" not in readme
+
+
 def test_self_check_uses_local_workflow():  # V015
     wf = yaml.safe_load((ROOT / ".github/workflows/self-check.yml").read_text())
     job = wf["jobs"]["evidence"]
@@ -68,6 +101,8 @@ def test_templates_exist_in_both_languages():  # V013
         assert (t / "pl" / pl).is_file(), pl
     for f in ("en/suppliers.yaml", "pl/dostawcy.yaml"):
         assert yaml.safe_load((t / f).read_text(encoding="utf-8"))["suppliers"]
+    own = yaml.safe_load((ROOT / "docs/suppliers.yaml").read_text(encoding="utf-8"))["suppliers"]
+    assert any("StepSecurity" in s["name"] for s in own)  # optional data recipient is declared
 
 
 def test_runbook_deadlines_match_sources():  # V013
@@ -104,6 +139,10 @@ def test_readme_sections_and_disclaimer():  # V012, V014
         "not legal advice",
         "nie jest porada prawna",
         "https://aircloud.com.pl/consulting/?from=evidence-kit",
+        "`kit-repository`",
+        "`harden-runner`",
+        "`summary`",
+        "## Updating pinned tools",
     ):
         assert needle in text, needle
     assert text.index("## Quick start") < text.index("## Po polsku")

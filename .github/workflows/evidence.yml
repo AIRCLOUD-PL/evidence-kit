@@ -2,24 +2,23 @@
 #
 # Usage (caller repository, e.g. .github/workflows/evidence.yml):
 #
-#   on:
-#     push:
-#       branches: [main]
-#     workflow_dispatch: {}
 #   permissions:
 #     contents: read
 #   jobs:
 #     evidence:
-#       uses: lkolo-prez/evidence-kit/.github/workflows/evidence.yml@<40-hex-sha> # v0.1.0
+#       uses: AIRCLOUD-PL/evidence-kit/.github/workflows/evidence.yml@<FULL_COMMIT_SHA> # v0.1.0
 #       permissions:
 #         contents: read
 #         actions: read
 #       with:
-#         kit-ref: <same 40-hex-sha>   # the scripts and mapping are checked out at this ref
+#         kit-ref: <FULL_COMMIT_SHA>   # required, the same 40-hex SHA as in `uses:`
 #
-# Output: artifact "evidence" with sbom.cdx.json, vulnerabilities.trivy.json,
-# secrets.gitleaks.json, scorecard.json, repo-checks.json, evidence.json,
-# evidence-report.md (EN) and evidence-report.pl.md (PL).
+# Get the SHA of a release:  gh api repos/AIRCLOUD-PL/evidence-kit/commits/v0.1.0 --jq .sha
+#
+# Security model: the scanned repository is data, never code. Kit scripts run from
+# $RUNNER_TEMP with `python3 -P` (no cwd on sys.path), Trivy runs with an empty config,
+# binaries are SHA-256 verified, and every suppression (VEX, .trivyignore, gitleaks
+# allowlists) is reported. Requires Python >= 3.11 on the runner (ubuntu-24.04: 3.12).
 #
 # Informative mapping only: not legal advice and not a certification.
 name: evidence
@@ -28,22 +27,21 @@ on:
   workflow_call:
     inputs:
       kit-ref:
-        description: Ref (tag or SHA) of evidence-kit to use for scripts and mapping. Pin it to the same SHA as `uses:`.
-        required: false
+        description: Full 40-hex commit SHA of evidence-kit (the same as in `uses:`). Tags are rejected.
+        required: true
         type: string
-        default: v0.1.0
       kit-repository:
         description: Repository that hosts evidence-kit (change only for forks).
         required: false
         type: string
-        default: lkolo-prez/evidence-kit
+        default: AIRCLOUD-PL/evidence-kit
       scan-path:
         description: Path to scan for the SBOM, relative to the repository root.
         required: false
         type: string
         default: "."
       skip-dirs:
-        description: Extra comma-separated directories to exclude from the SBOM.
+        description: Comma-separated directories (relative to scan-path) excluded from the SBOM.
         required: false
         type: string
         default: ""
@@ -57,6 +55,11 @@ on:
         required: false
         type: boolean
         default: true
+      harden-runner:
+        description: Run step-security/harden-runner (egress audit). Sends telemetry to StepSecurity; private repositories need a StepSecurity plan.
+        required: false
+        type: boolean
+        default: false
       fail-on:
         description: Fail the job on vulnerabilities at or above this severity (none, critical, high, medium, low).
         required: false
@@ -68,7 +71,7 @@ on:
         type: boolean
         default: false
       lang:
-        description: Report languages, comma-separated (en, pl).
+        description: Report languages, comma-separated (en, pl). The first one goes to the job summary.
         required: false
         type: string
         default: en,pl
@@ -83,7 +86,7 @@ on:
         type: number
         default: 90
       runs-on:
-        description: Runner label.
+        description: Runner label (Linux x64 or arm64).
         required: false
         type: string
         default: ubuntu-24.04
@@ -106,85 +109,142 @@ jobs:
     outputs:
       summary: ${{ steps.report.outputs.summary }}
     env:
-      EK_TRIVY_VERSION: v0.70.0
+      # Pinned tool versions. Update together with the SHA-256 from the release checksums file.
+      EK_TRIVY_VERSION: 0.76.2
+      EK_TRIVY_SHA256_X64: bc0fc726e017b8927a62b2d3531d7a84ee01769daf5c99ed866dced54089fdbf
+      EK_TRIVY_SHA256_ARM64: ab9d51f86e6a5fb936f605faff6b593ac51bc378fff4d3e8b9d58358b9c367c3
       EK_GITLEAKS_VERSION: 8.30.1
-      EK_GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+      EK_GITLEAKS_SHA256_X64: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+      EK_GITLEAKS_SHA256_ARM64: e4a487ee7ccd7d3a7f7ec08657610aa3606637dab924210b3aee62570fb4b080
       EK_SCORECARD_VERSION: v2.6.0
     steps:
-      - name: Harden the runner
-        uses: step-security/harden-runner@cb605e52c26070c328afc4562f0b4ada7618a84e # v2.10.4
+      - name: Harden the runner (optional)
+        if: inputs.harden-runner
+        uses: step-security/harden-runner@aebdcf6156ab6691adf63218240e476564a1ed4c # v2.23.0
         with:
           egress-policy: audit
 
+      - name: Validate inputs
+        env:
+          KIT_REF: ${{ inputs.kit-ref }}
+          KIT_REPOSITORY: ${{ inputs.kit-repository }}
+          SCAN_PATH: ${{ inputs.scan-path }}
+          SKIP_DIRS: ${{ inputs.skip-dirs }}
+          VEX_FILE: ${{ inputs.vex-file }}
+          FAIL_ON: ${{ inputs.fail-on }}
+          EK_LANG: ${{ inputs.lang }}
+        run: |
+          set -euo pipefail
+          die() { echo "::error::$1"; exit 1; }
+          [[ "${KIT_REF}" =~ ^[0-9a-f]{40}$ ]] || die "kit-ref must be a full 40-hex commit SHA (tags are mutable)"
+          [[ "${KIT_REPOSITORY}" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]] || die "kit-repository must be owner/name"
+          safe='^[A-Za-z0-9_./-]*$'
+          [[ "${SCAN_PATH}" =~ ${safe} && "${SCAN_PATH}" != *..* ]] || die "scan-path contains unsupported characters"
+          [[ "${VEX_FILE}" =~ ${safe} && "${VEX_FILE}" != *..* ]] || die "vex-file contains unsupported characters"
+          [[ "${SKIP_DIRS}" =~ ^[A-Za-z0-9_.,*/-]*$ && "${SKIP_DIRS}" != *..* ]] || die "skip-dirs: only letters, digits, . _ - / * and commas"
+          [[ "${FAIL_ON}" =~ ^(none|critical|high|medium|low)$ ]] || die "fail-on must be none, critical, high, medium or low"
+          [[ "${EK_LANG}" =~ ^(en|pl)(,(en|pl))?$ ]] || die "lang must be en, pl, en,pl or pl,en"
+
       - name: Checkout repository (full history for the secret scan)
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
           persist-credentials: false
 
       - name: Checkout evidence-kit
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: ${{ inputs.kit-repository }}
           ref: ${{ inputs.kit-ref }}
           path: .evidence-kit
           persist-credentials: false
 
-      - name: Prepare evidence directory
-        env:
-          SKIP_DIRS: ${{ inputs.skip-dirs }}
+      # Move the kit out of the scanned tree and prepare paths outside the workspace.
+      - name: Prepare
         run: |
           set -euo pipefail
-          echo "EK_DIR=${RUNNER_TEMP}/evidence" >> "$GITHUB_ENV"
-          mkdir -p "${RUNNER_TEMP}/evidence"
-          skip=".evidence-kit"
-          if [ -n "${SKIP_DIRS}" ]; then skip="${skip},${SKIP_DIRS}"; fi
-          echo "EK_SKIP_DIRS=${skip}" >> "$GITHUB_ENV"
+          mv .evidence-kit "${RUNNER_TEMP}/evidence-kit"
+          mkdir -p "${RUNNER_TEMP}/evidence" "${RUNNER_TEMP}/ek-bin" "${RUNNER_TEMP}/ek-gitleaks-ignore"
+          # Repository trivy.yaml is never applied (it could hide findings); reported by the collector.
+          echo "# evidence-kit: empty Trivy config" > "${RUNNER_TEMP}/ek-trivy.yaml"
+          printf '[extend]\nuseDefault = true\n' > "${RUNNER_TEMP}/ek-gitleaks-default.toml"
+          {
+            echo "EK_KIT=${RUNNER_TEMP}/evidence-kit"
+            echo "EK_DIR=${RUNNER_TEMP}/evidence"
+            echo "EK_BIN=${RUNNER_TEMP}/ek-bin"
+          } >> "$GITHUB_ENV"
+
+      - name: Install Trivy and gitleaks (SHA-256 verified)
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          case "$(uname -m)" in
+            x86_64)  t_arch=Linux-64bit; t_sha="${EK_TRIVY_SHA256_X64}"; g_arch=linux_x64; g_sha="${EK_GITLEAKS_SHA256_X64}" ;;
+            aarch64|arm64) t_arch=Linux-ARM64; t_sha="${EK_TRIVY_SHA256_ARM64}"; g_arch=linux_arm64; g_sha="${EK_GITLEAKS_SHA256_ARM64}" ;;
+            *)
+              echo "::warning::unsupported runner architecture $(uname -m); Trivy and gitleaks are not run"
+              echo "EK_NOTE_TOOLS=unsupported runner architecture $(uname -m)" >> "$GITHUB_ENV"
+              exit 0 ;;
+          esac
+          fetch() { # url sha256 member
+            local file
+            file="${RUNNER_TEMP}/$(basename "$1")"
+            curl -fsSL -o "${file}" "$1"
+            echo "$2  ${file}" | sha256sum --check --strict
+            tar -xzf "${file}" -C "${EK_BIN}" "$3"
+          }
+          fetch "https://github.com/aquasecurity/trivy/releases/download/v${EK_TRIVY_VERSION}/trivy_${EK_TRIVY_VERSION}_${t_arch}.tar.gz" "${t_sha}" trivy
+          fetch "https://github.com/gitleaks/gitleaks/releases/download/v${EK_GITLEAKS_VERSION}/gitleaks_${EK_GITLEAKS_VERSION}_${g_arch}.tar.gz" "${g_sha}" gitleaks
+          "${EK_BIN}/trivy" --version | head -1
+          "${EK_BIN}/gitleaks" version
 
       # --- 1. SBOM (CycloneDX) -------------------------------------------------
       - name: SBOM (Trivy, CycloneDX)
         continue-on-error: true
-        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
-        with:
-          scan-type: fs
-          scan-ref: ${{ inputs.scan-path }}
-          format: cyclonedx
-          output: ${{ env.EK_DIR }}/sbom.cdx.json
-          skip-dirs: ${{ env.EK_SKIP_DIRS }}
-          version: ${{ env.EK_TRIVY_VERSION }}
+        working-directory: ${{ runner.temp }}
+        env:
+          SCAN_PATH: ${{ inputs.scan-path }}
+          SKIP_DIRS: ${{ inputs.skip-dirs }}
+        run: |
+          set -euo pipefail
+          args=(fs --quiet --config "${RUNNER_TEMP}/ek-trivy.yaml" --format cyclonedx --output "${EK_DIR}/sbom.cdx.json")
+          if [ -n "${SKIP_DIRS}" ]; then args+=(--skip-dirs "${SKIP_DIRS}"); fi
+          "${EK_BIN}/trivy" "${args[@]}" "${GITHUB_WORKSPACE}/${SCAN_PATH}"
 
-      # --- 2. Vulnerabilities of the SBOM (+ optional VEX) ----------------------
+      # --- 2. Vulnerabilities of the SBOM (VEX and .trivyignore are applied and reported) ---
       - name: Vulnerability scan of the SBOM (Trivy)
         continue-on-error: true
+        working-directory: ${{ runner.temp }}
         env:
           VEX_FILE: ${{ inputs.vex-file }}
-          TRIVY_DB_REPOSITORY: ghcr.io/aquasecurity/trivy-db
         run: |
           set -euo pipefail
-          args=(sbom --quiet --format json --exit-code 0 --output "${EK_DIR}/vulnerabilities.trivy.json")
+          args=(sbom --quiet --config "${RUNNER_TEMP}/ek-trivy.yaml" --format json --exit-code 0 --show-suppressed
+                --output "${EK_DIR}/vulnerabilities.trivy.json")
+          for f in .trivyignore.yaml .trivyignore; do
+            if [ -f "${GITHUB_WORKSPACE}/${f}" ]; then args+=(--ignorefile "${GITHUB_WORKSPACE}/${f}"); break; fi
+          done
           if [ -n "${VEX_FILE}" ]; then
-            test -f "${VEX_FILE}" || { echo "::error::vex-file '${VEX_FILE}' not found"; exit 1; }
-            args+=(--vex "${VEX_FILE}" --show-suppressed)
+            test -f "${GITHUB_WORKSPACE}/${VEX_FILE}" || { echo "::error::vex-file '${VEX_FILE}' not found"; exit 1; }
+            args+=(--vex "${GITHUB_WORKSPACE}/${VEX_FILE}")
           fi
-          trivy "${args[@]}" "${EK_DIR}/sbom.cdx.json"
+          "${EK_BIN}/trivy" "${args[@]}" "${EK_DIR}/sbom.cdx.json"
 
-      # --- 3. Secrets in git history (gitleaks CLI, MIT, checksum-verified) -----
-      - name: Install gitleaks CLI
-        continue-on-error: true
-        run: |
-          set -euo pipefail
-          tarball="gitleaks_${EK_GITLEAKS_VERSION}_linux_x64.tar.gz"
-          curl -fsSL -o "${RUNNER_TEMP}/${tarball}" \
-            "https://github.com/gitleaks/gitleaks/releases/download/v${EK_GITLEAKS_VERSION}/${tarball}"
-          echo "${EK_GITLEAKS_SHA256}  ${RUNNER_TEMP}/${tarball}" | sha256sum --check --strict
-          tar -xzf "${RUNNER_TEMP}/${tarball}" -C "${RUNNER_TEMP}" gitleaks
-
+      # --- 3. Secrets in git history -----------------------------------------
+      # (a) as configured by the repository (.gitleaks.toml, .gitleaksignore),
+      # (b) baseline with default rules on a bare mirror, to reveal what the repository suppresses.
       - name: Secret scan (gitleaks, full history, redacted)
         continue-on-error: true
+        working-directory: ${{ runner.temp }}
         run: |
           set -euo pipefail
-          "${RUNNER_TEMP}/gitleaks" git . --redact --no-banner --exit-code 0 \
+          "${EK_BIN}/gitleaks" git "${GITHUB_WORKSPACE}" --redact --no-banner --exit-code 0 \
             --report-format json --report-path "${EK_DIR}/secrets.gitleaks.json"
+          git clone --quiet --mirror "${GITHUB_WORKSPACE}" "${RUNNER_TEMP}/ek-mirror.git"
+          "${EK_BIN}/gitleaks" git "${RUNNER_TEMP}/ek-mirror.git" --redact --no-banner --exit-code 0 \
+            --config "${RUNNER_TEMP}/ek-gitleaks-default.toml" \
+            --gitleaks-ignore-path "${RUNNER_TEMP}/ek-gitleaks-ignore" \
+            --report-format json --report-path "${EK_DIR}/secrets.gitleaks.baseline.json"
 
       # --- 4. OpenSSF Scorecard (not published) --------------------------------
       - name: OpenSSF Scorecard
@@ -201,39 +261,43 @@ jobs:
         run: |
           if [ -f .evidence-kit-scorecard.json ]; then mv .evidence-kit-scorecard.json "${EK_DIR}/scorecard.json"; fi
 
-      # --- 5. Repository hygiene + report --------------------------------------
+      # --- 5. Repository hygiene + report (kit code only, never repository code) ---
       - name: Repository checks
+        working-directory: ${{ runner.temp }}
         env:
           GITHUB_TOKEN: ${{ github.token }}
           EK_VEX_FILE: ${{ inputs.vex-file }}
           EK_SCORECARD_ENABLED: ${{ inputs.run-scorecard }}
-          PYTHONPATH: .evidence-kit
-        run: python3 -m evidence_kit collect --repo . --out "${EK_DIR}/repo-checks.json"
+        run: |
+          set -euo pipefail
+          EK_TRIVY_VERSION="v${EK_TRIVY_VERSION}" PYTHONPATH="${EK_KIT}" \
+            python3 -P -m evidence_kit collect --repo "${GITHUB_WORKSPACE}" --out "${EK_DIR}/repo-checks.json"
 
       - name: Install report dependencies (hash-pinned)
+        working-directory: ${{ runner.temp }}
         run: |
           set -euo pipefail
           python3 -m venv "${RUNNER_TEMP}/ek-venv"
-          "${RUNNER_TEMP}/ek-venv/bin/pip" install --quiet --disable-pip-version-check \
-            --require-hashes --only-binary=:all: -r .evidence-kit/requirements.txt
+          "${RUNNER_TEMP}/ek-venv/bin/python" -P -m pip install --quiet --disable-pip-version-check \
+            --require-hashes --only-binary=:all: -r "${EK_KIT}/requirements.txt"
 
       - name: Build evidence report
         id: report
+        working-directory: ${{ runner.temp }}
         env:
           EK_LANG: ${{ inputs.lang }}
-          PYTHONPATH: .evidence-kit
         run: |
           set -euo pipefail
-          "${RUNNER_TEMP}/ek-venv/bin/python" -m evidence_kit report --evidence-dir "${EK_DIR}" --lang "${EK_LANG}"
-          first="$(echo "${EK_LANG}" | cut -d, -f1)"
-          if [ "${first}" = "pl" ]; then cat "${EK_DIR}/evidence-report.pl.md" >> "$GITHUB_STEP_SUMMARY";
+          PYTHONPATH="${EK_KIT}" "${RUNNER_TEMP}/ek-venv/bin/python" -P -m evidence_kit report \
+            --evidence-dir "${EK_DIR}" --lang "${EK_LANG}"
+          if [ "${EK_LANG%%,*}" = "pl" ]; then cat "${EK_DIR}/evidence-report.pl.md" >> "$GITHUB_STEP_SUMMARY";
           else cat "${EK_DIR}/evidence-report.md" >> "$GITHUB_STEP_SUMMARY"; fi
-          summary="$(python3 -c 'import json,sys; print(json.dumps(json.load(open(sys.argv[1]))["summary"]))' "${EK_DIR}/evidence.json")"
+          summary="$(python3 -P -c 'import json,sys; print(json.dumps(json.load(open(sys.argv[1]))["summary"]))' "${EK_DIR}/evidence.json")"
           echo "summary=${summary}" >> "$GITHUB_OUTPUT"
 
       - name: Upload evidence bundle
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ${{ inputs.artifact-name }}
           path: ${{ env.EK_DIR }}
@@ -243,12 +307,12 @@ jobs:
       # Gate runs after the upload, so evidence is kept even when the job fails.
       - name: Gate
         if: inputs.fail-on != 'none' || inputs.fail-on-secrets
+        working-directory: ${{ runner.temp }}
         env:
           EK_FAIL_ON: ${{ inputs.fail-on }}
           EK_FAIL_ON_SECRETS: ${{ inputs.fail-on-secrets }}
-          PYTHONPATH: .evidence-kit
         run: |
           set -euo pipefail
           args=(--evidence "${EK_DIR}/evidence.json" --fail-on "${EK_FAIL_ON}")
           if [ "${EK_FAIL_ON_SECRETS}" = "true" ]; then args+=(--fail-on-secrets); fi
-          python3 -m evidence_kit gate "${args[@]}"
+          PYTHONPATH="${EK_KIT}" python3 -P -m evidence_kit gate "${args[@]}"

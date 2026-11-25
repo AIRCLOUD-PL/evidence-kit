@@ -7,7 +7,7 @@
 - **Generated:** 2026-11-25T00:00:00+00:00
 - **evidence-kit:** 0.1.0 (mapping 0.1.0, 2026-11-25)
 - **Workflow run:** https://github.com/example/demo-app/actions/runs/1234567890
-- **Tools:** trivy v0.70.0, gitleaks 8.30.1, scorecard_action v2.6.0
+- **Tools:** trivy v0.76.2, gitleaks 8.30.1, scorecard_action v2.6.0
 
 ## Summary
 
@@ -17,24 +17,26 @@
 
 Outcomes: PASS, WARN, FAIL, UNKNOWN (not verifiable), NOT RUN (no input), MANUAL.
 
+Relation: a reference without a mark is direct (the control produces the artefact the provision names); (supporting) means the control contributes evidence but is not sufficient on its own.
+
 What this report does not prove: an information security management system (SZBI), risk assessment, business continuity, staff training, physical security or the statutory audit. Those are listed under manual controls.
 
 ## Automated controls
 
 | ID | Control | Outcome | Result | KSC | CRA |
 |---|---|---|---|---|---|
-| EK-SBOM | Software bill of materials (CycloneDX) | **PASS** | CycloneDX 1.6 SBOM: 4 package(s), 4 with purl. | art. 8 ust. 1 pkt 2 lit. e<br>art. 8 ust. 1 pkt 2 lit. m<br>art. 8 ust. 2 | Annex I, Part II(1)<br>Art. 13(5) |
-| EK-VULN | Known vulnerabilities in dependencies (SBOM scan, optional VEX) | **FAIL** | Known vulnerabilities: 7 high, 12 medium; 1 suppressed by VEX. | art. 8 ust. 1 pkt 3<br>art. 8 ust. 1 pkt 5 lit. b<br>art. 8 ust. 1 pkt 5 lit. d | Annex I, Part I(2)(a)<br>Annex I, Part II(1)<br>Annex I, Part II(2) |
-| EK-SECRETS | No secrets in git history (gitleaks) | **FAIL** | 1 potential secret(s) in git history (rule types: 1). Rotate and remove them. | art. 8 ust. 1 pkt 2 lit. n<br>art. 8 ust. 1 pkt 2 lit. j<br>art. 8 ust. 1 pkt 5 lit. a | Annex I, Part I(2)(d)<br>Annex I, Part I(2)(e) |
-| EK-SCORECARD | OpenSSF Scorecard (repository security practices) | **WARN** | Scorecard 6.2/10 (pass >= 7.0). Lowest: CII-Best-Practices, Fuzzing, Vulnerabilities, Branch-Protection, Contributors. | art. 8 ust. 1 pkt 2 lit. b<br>art. 8 ust. 1 pkt 2 lit. h | Annex I, Part II(3) |
-| EK-SECURITY-POLICY | Security policy with a reporting contact (SECURITY.md) | **PASS** | SECURITY.md with a reporting contact. Private vulnerability reporting is enabled. | art. 8 ust. 1 pkt 3<br>art. 8 ust. 1 pkt 4 | Annex I, Part II(6)<br>Art. 13(17) |
-| EK-CVD | Coordinated vulnerability disclosure (CVD) policy | **PASS** | CVD section found in SECURITY.md. | art. 8 ust. 1 pkt 3<br>art. 8 ust. 1 pkt 5 lit. d | Annex I, Part II(5)<br>Art. 13(8) |
-| EK-SECURITY-TXT | security.txt (RFC 9116) with Contact and valid Expires | **PASS** | .well-known/security.txt valid until 2027-11-01T00:00:00Z. | art. 8 ust. 1 pkt 3 | Annex I, Part II(6)<br>Art. 13(17) |
-| EK-CODEOWNERS | Code ownership defined (CODEOWNERS) | **PASS** | .github/CODEOWNERS with 1 rule(s). | art. 8 ust. 1 pkt 2 lit. n<br>art. 8 ust. 1 pkt 5 lit. c | Annex I, Part I(2)(f) |
-| EK-BRANCH-PROTECTION | Default branch protected (branch protection or ruleset) | **PASS** | `main` requires pull requests (+ non_fast_forward, deletion). | art. 8 ust. 1 pkt 5 lit. c<br>art. 8 ust. 1 pkt 2 lit. n | Annex I, Part I(2)(f)<br>Annex I, Part I(2)(d) |
-| EK-DEP-UPDATES | Automated dependency updates (Dependabot or Renovate) | **PASS** | Dependency update config: .github/dependabot.yml. | art. 8 ust. 1 pkt 5 lit. b | Annex I, Part II(2) |
-| EK-SUPPLIERS | Supplier register present (content needs human review) | **WARN** | Supplier register: not found (see templates/). | art. 8 ust. 1 pkt 2 lit. e<br>art. 8 ust. 2 | Art. 13(5) |
-| EK-INCIDENT-RUNBOOK | Incident and vulnerability reporting runbook present | **WARN** | Incident reporting runbook: not found (see templates/). | art. 8 ust. 1 pkt 4<br>art. 11 ust. 1 pkt 4-4c | Art. 14(1)-(4) |
+| EK-SBOM | Software bill of materials (CycloneDX) | **PASS** | CycloneDX 1.6 SBOM: 4 package(s), 4 with purl. | art. 8 ust. 1 pkt 2 lit. e (supporting)<br>art. 8 ust. 1 pkt 2 lit. m (supporting)<br>art. 8 ust. 2 (supporting) | Annex I, Part II(1)<br>Art. 13(5) (supporting) |
+| EK-VULN | Known vulnerabilities in dependencies (SBOM scan, optional VEX) | **FAIL** | Known vulnerabilities: 7 high, 12 medium. Suppressed by VEX: 1. | art. 8 ust. 1 pkt 3<br>art. 8 ust. 1 pkt 5 lit. b (supporting)<br>art. 8 ust. 1 pkt 5 lit. d (supporting) | Annex I, Part II(1)<br>Annex I, Part I(2)(a) (supporting)<br>Annex I, Part II(2) (supporting) |
+| EK-SECRETS | No secrets in git history (gitleaks) | **FAIL** | 1 potential secret(s) in git history (rule types: 1). Rotate and remove them. | art. 8 ust. 1 pkt 2 lit. n (supporting)<br>art. 8 ust. 1 pkt 2 lit. j (supporting)<br>art. 8 ust. 1 pkt 5 lit. a (supporting) | Art. 13(1) (supporting)<br>Annex I, Part I(2)(d) (supporting)<br>Annex I, Part I(2)(e) (supporting) |
+| EK-SCORECARD | OpenSSF Scorecard (repository security practices) | **WARN** | Scorecard 6.2/10 (pass >= 7.0). Lowest: CII-Best-Practices, Fuzzing, Vulnerabilities, Branch-Protection, Contributors. | art. 8 ust. 1 pkt 2 lit. b (supporting)<br>art. 8 ust. 1 pkt 2 lit. h (supporting) | Annex I, Part II(3) (supporting) |
+| EK-SECURITY-POLICY | Security policy with a reporting contact (SECURITY.md) | **PASS** | SECURITY.md with a reporting contact. Private vulnerability reporting is enabled. | art. 8 ust. 1 pkt 3 (supporting)<br>art. 8 ust. 1 pkt 4 (supporting) | Annex I, Part II(6)<br>Art. 13(17) |
+| EK-CVD | Coordinated vulnerability disclosure (CVD) policy | **PASS** | CVD section found in SECURITY.md. | art. 8 ust. 1 pkt 3 (supporting)<br>art. 8 ust. 1 pkt 5 lit. d (supporting) | Annex I, Part II(5)<br>Art. 13(8) (supporting) |
+| EK-SECURITY-TXT | security.txt (RFC 9116) with Contact and valid Expires | **PASS** | .well-known/security.txt valid until 2027-11-01T00:00:00Z. | art. 8 ust. 1 pkt 3 (supporting) | Annex I, Part II(6) (supporting)<br>Art. 13(17) (supporting) |
+| EK-CODEOWNERS | Code ownership defined (CODEOWNERS) | **PASS** | .github/CODEOWNERS with 1 rule(s). | art. 8 ust. 1 pkt 2 lit. n (supporting)<br>art. 8 ust. 1 pkt 5 lit. c (supporting) | Art. 13(1) (supporting)<br>Annex I, Part I(2)(f) (supporting) |
+| EK-BRANCH-PROTECTION | Default branch protected (branch protection or ruleset) | **PASS** | `main` requires pull requests (+ non_fast_forward, deletion). | art. 8 ust. 1 pkt 5 lit. c (supporting)<br>art. 8 ust. 1 pkt 2 lit. n (supporting) | Art. 13(1) (supporting)<br>Annex I, Part I(2)(d) (supporting)<br>Annex I, Part I(2)(f) (supporting) |
+| EK-DEP-UPDATES | Automated dependency updates (Dependabot or Renovate) | **PASS** | Dependency update config: .github/dependabot.yml. | art. 8 ust. 1 pkt 5 lit. b (supporting) | Annex I, Part II(2) (supporting) |
+| EK-SUPPLIERS | Supplier register present (content needs human review) | **WARN** | Supplier register: not found (see templates/). | art. 8 ust. 1 pkt 2 lit. e (supporting)<br>art. 8 ust. 2 (supporting) | Art. 13(5) (supporting) |
+| EK-INCIDENT-RUNBOOK | Incident and vulnerability reporting runbook present | **WARN** | Incident reporting runbook: not found (see templates/). | art. 8 ust. 1 pkt 4 (supporting)<br>art. 11 ust. 1 pkt 4-4c (supporting) | Art. 14(1)-(4) (supporting) |
 
 ## Manual controls (evidence you must provide)
 
@@ -57,17 +59,17 @@ What this report does not prove: an information security management system (SZBI
 
 CycloneDX 1.6 SBOM: 4 package(s), 4 with purl.
 
-- **KSC:** art. 8 ust. 1 pkt 2 lit. e: security and continuity of the ICT supply chain (products, services, processes); art. 8 ust. 1 pkt 2 lit. m: asset management; art. 8 ust. 2: supply-chain measures consider supplier vulnerabilities and overall product quality
-- **CRA:** Annex I, Part II(1): identify and document vulnerabilities and components, incl. an SBOM; Art. 13(5): due diligence when integrating third-party components, incl. open source
+- **KSC:** art. 8 ust. 1 pkt 2 lit. e (supporting): security and continuity of the ICT supply chain (products, services, processes); art. 8 ust. 1 pkt 2 lit. m (supporting): asset management; art. 8 ust. 2 (supporting): supply-chain measures consider supplier vulnerabilities and overall product quality
+- **CRA:** Annex I, Part II(1): identify and document vulnerabilities and components, incl. an SBOM; Art. 13(5) (supporting): due diligence when integrating third-party components, incl. open source
 - **OSPS Baseline:** OSPS-QA-02.01, OSPS-QA-02.02
 - **Evidence:** `sbom.cdx.json`
 
 ### EK-VULN: Known vulnerabilities in dependencies (SBOM scan, optional VEX) (FAIL)
 
-Known vulnerabilities: 7 high, 12 medium; 1 suppressed by VEX.
+Known vulnerabilities: 7 high, 12 medium. Suppressed by VEX: 1.
 
-- **KSC:** art. 8 ust. 1 pkt 3: collecting information on cyber threats and vulnerabilities; art. 8 ust. 1 pkt 5 lit. b: regular software updates, following vendor recommendations; art. 8 ust. 1 pkt 5 lit. d: prompt action once vulnerabilities or cyber threats are detected
-- **CRA:** Annex I, Part I(2)(a): made available without known exploitable vulnerabilities; Annex I, Part II(1): identify and document vulnerabilities and components, incl. an SBOM; Annex I, Part II(2): address and remediate vulnerabilities without delay
+- **KSC:** art. 8 ust. 1 pkt 3: collecting information on cyber threats and vulnerabilities; art. 8 ust. 1 pkt 5 lit. b (supporting): regular software updates, following vendor recommendations; art. 8 ust. 1 pkt 5 lit. d (supporting): prompt action once vulnerabilities or cyber threats are detected
+- **CRA:** Annex I, Part II(1): identify and document vulnerabilities and components, incl. an SBOM; Annex I, Part I(2)(a) (supporting): made available without known exploitable vulnerabilities; Annex I, Part II(2) (supporting): address and remediate vulnerabilities without delay
 - **OSPS Baseline:** OSPS-VM-05.03, OSPS-VM-04.02
 - **Evidence:** `vulnerabilities.trivy.json`, `sbom.cdx.json`
 
@@ -97,14 +99,20 @@ Known vulnerabilities: 7 high, 12 medium; 1 suppressed by VEX.
 | CVE-2024-47081 | MEDIUM | requests | 2.25.0 | 2.32.4 |
 | CVE-2024-56201 | MEDIUM | jinja2 | 3.1.2 | 3.1.5 |
 
+Suppressed findings (not counted above):
+
+| ID | Severity | Package | Suppressed by | Status / justification |
+|---|---|---|---|---|
+| CVE-2021-33503 | HIGH | urllib3 | vex (`vex.openvex.json`) | not_affected / vulnerable_code_not_in_execute_path |
+
 ### EK-SECRETS: No secrets in git history (gitleaks) (FAIL)
 
 1 potential secret(s) in git history (rule types: 1). Rotate and remove them.
 
-- **KSC:** art. 8 ust. 1 pkt 2 lit. n: access control policies; art. 8 ust. 1 pkt 2 lit. j: basic cyber hygiene; art. 8 ust. 1 pkt 5 lit. a: mechanisms ensuring confidentiality, integrity, availability and authenticity of data
-- **CRA:** Annex I, Part I(2)(d): protection from unauthorised access; Annex I, Part I(2)(e): confidentiality of data, e.g. encryption at rest and in transit
+- **KSC:** art. 8 ust. 1 pkt 2 lit. n (supporting): access control policies; art. 8 ust. 1 pkt 2 lit. j (supporting): basic cyber hygiene; art. 8 ust. 1 pkt 5 lit. a (supporting): mechanisms ensuring confidentiality, integrity, availability and authenticity of data
+- **CRA:** Art. 13(1) (supporting): product designed, developed and produced in accordance with Annex I Part I (process obligation); Annex I, Part I(2)(d) (supporting): protection from unauthorised access; Annex I, Part I(2)(e) (supporting): confidentiality of data, e.g. encryption at rest and in transit
 - **OSPS Baseline:** OSPS-BR-07.01
-- **Evidence:** `secrets.gitleaks.json`
+- **Evidence:** `secrets.gitleaks.json`, `secrets.gitleaks.baseline.json`
 
 Secret values are redacted; only rule, file, line and commit are shown.
 
@@ -116,8 +124,8 @@ Secret values are redacted; only rule, file, line and commit are shown.
 
 Scorecard 6.2/10 (pass >= 7.0). Lowest: CII-Best-Practices, Fuzzing, Vulnerabilities, Branch-Protection, Contributors.
 
-- **KSC:** art. 8 ust. 1 pkt 2 lit. b: security in acquisition, development, maintenance and operation, incl. testing; art. 8 ust. 1 pkt 2 lit. h: policies and procedures to assess the effectiveness of measures
-- **CRA:** Annex I, Part II(3): effective and regular security tests and reviews
+- **KSC:** art. 8 ust. 1 pkt 2 lit. b (supporting): security in acquisition, development, maintenance and operation, incl. testing; art. 8 ust. 1 pkt 2 lit. h (supporting): policies and procedures to assess the effectiveness of measures
+- **CRA:** Annex I, Part II(3) (supporting): effective and regular security tests and reviews
 - **Evidence:** `scorecard.json`
 
 | Check | Score |
@@ -145,7 +153,7 @@ Scorecard 6.2/10 (pass >= 7.0). Lowest: CII-Best-Practices, Fuzzing, Vulnerabili
 
 SECURITY.md with a reporting contact. Private vulnerability reporting is enabled.
 
-- **KSC:** art. 8 ust. 1 pkt 3: collecting information on cyber threats and vulnerabilities; art. 8 ust. 1 pkt 4: incident management
+- **KSC:** art. 8 ust. 1 pkt 3 (supporting): collecting information on cyber threats and vulnerabilities; art. 8 ust. 1 pkt 4 (supporting): incident management
 - **CRA:** Annex I, Part II(6): facilitate sharing vulnerability information, incl. a contact address; Art. 13(17): single point of contact for users, incl. vulnerability reporting
 - **OSPS Baseline:** OSPS-VM-02.01, OSPS-VM-03.01
 - **Evidence:** `repo-checks.json`
@@ -154,8 +162,8 @@ SECURITY.md with a reporting contact. Private vulnerability reporting is enabled
 
 CVD section found in SECURITY.md.
 
-- **KSC:** art. 8 ust. 1 pkt 3: collecting information on cyber threats and vulnerabilities; art. 8 ust. 1 pkt 5 lit. d: prompt action once vulnerabilities or cyber threats are detected
-- **CRA:** Annex I, Part II(5): coordinated vulnerability disclosure policy; Art. 13(8): effective vulnerability handling during the support period
+- **KSC:** art. 8 ust. 1 pkt 3 (supporting): collecting information on cyber threats and vulnerabilities; art. 8 ust. 1 pkt 5 lit. d (supporting): prompt action once vulnerabilities or cyber threats are detected
+- **CRA:** Annex I, Part II(5): coordinated vulnerability disclosure policy; Art. 13(8) (supporting): effective vulnerability handling during the support period
 - **OSPS Baseline:** OSPS-VM-01.01
 - **Evidence:** `repo-checks.json`
 
@@ -163,24 +171,24 @@ CVD section found in SECURITY.md.
 
 .well-known/security.txt valid until 2027-11-01T00:00:00Z.
 
-- **KSC:** art. 8 ust. 1 pkt 3: collecting information on cyber threats and vulnerabilities
-- **CRA:** Annex I, Part II(6): facilitate sharing vulnerability information, incl. a contact address; Art. 13(17): single point of contact for users, incl. vulnerability reporting
+- **KSC:** art. 8 ust. 1 pkt 3 (supporting): collecting information on cyber threats and vulnerabilities
+- **CRA:** Annex I, Part II(6) (supporting): facilitate sharing vulnerability information, incl. a contact address; Art. 13(17) (supporting): single point of contact for users, incl. vulnerability reporting
 - **Evidence:** `repo-checks.json`
 
 ### EK-CODEOWNERS: Code ownership defined (CODEOWNERS) (PASS)
 
 .github/CODEOWNERS with 1 rule(s).
 
-- **KSC:** art. 8 ust. 1 pkt 2 lit. n: access control policies; art. 8 ust. 1 pkt 5 lit. c: protection against unauthorised modification
-- **CRA:** Annex I, Part I(2)(f): integrity of data, commands, programs and configuration
+- **KSC:** art. 8 ust. 1 pkt 2 lit. n (supporting): access control policies; art. 8 ust. 1 pkt 5 lit. c (supporting): protection against unauthorised modification
+- **CRA:** Art. 13(1) (supporting): product designed, developed and produced in accordance with Annex I Part I (process obligation); Annex I, Part I(2)(f) (supporting): integrity of data, commands, programs and configuration
 - **Evidence:** `repo-checks.json`
 
 ### EK-BRANCH-PROTECTION: Default branch protected (branch protection or ruleset) (PASS)
 
 `main` requires pull requests (+ non_fast_forward, deletion).
 
-- **KSC:** art. 8 ust. 1 pkt 5 lit. c: protection against unauthorised modification; art. 8 ust. 1 pkt 2 lit. n: access control policies
-- **CRA:** Annex I, Part I(2)(f): integrity of data, commands, programs and configuration; Annex I, Part I(2)(d): protection from unauthorised access
+- **KSC:** art. 8 ust. 1 pkt 5 lit. c (supporting): protection against unauthorised modification; art. 8 ust. 1 pkt 2 lit. n (supporting): access control policies
+- **CRA:** Art. 13(1) (supporting): product designed, developed and produced in accordance with Annex I Part I (process obligation); Annex I, Part I(2)(d) (supporting): protection from unauthorised access; Annex I, Part I(2)(f) (supporting): integrity of data, commands, programs and configuration
 - **OSPS Baseline:** OSPS-AC-03.01, OSPS-AC-03.02, OSPS-QA-07.01
 - **Evidence:** `repo-checks.json`
 
@@ -188,33 +196,34 @@ CVD section found in SECURITY.md.
 
 Dependency update config: .github/dependabot.yml.
 
-- **KSC:** art. 8 ust. 1 pkt 5 lit. b: regular software updates, following vendor recommendations
-- **CRA:** Annex I, Part II(2): address and remediate vulnerabilities without delay
+- **KSC:** art. 8 ust. 1 pkt 5 lit. b (supporting): regular software updates, following vendor recommendations
+- **CRA:** Annex I, Part II(2) (supporting): address and remediate vulnerabilities without delay
 - **Evidence:** `repo-checks.json`
 
 ### EK-SUPPLIERS: Supplier register present (content needs human review) (WARN)
 
 Supplier register: not found (see templates/).
 
-- **KSC:** art. 8 ust. 1 pkt 2 lit. e: security and continuity of the ICT supply chain (products, services, processes); art. 8 ust. 2: supply-chain measures consider supplier vulnerabilities and overall product quality
-- **CRA:** Art. 13(5): due diligence when integrating third-party components, incl. open source
+- **KSC:** art. 8 ust. 1 pkt 2 lit. e (supporting): security and continuity of the ICT supply chain (products, services, processes); art. 8 ust. 2 (supporting): supply-chain measures consider supplier vulnerabilities and overall product quality
+- **CRA:** Art. 13(5) (supporting): due diligence when integrating third-party components, incl. open source
 - **Evidence:** `repo-checks.json`
 
 ### EK-INCIDENT-RUNBOOK: Incident and vulnerability reporting runbook present (WARN)
 
 Incident reporting runbook: not found (see templates/).
 
-- **KSC:** art. 8 ust. 1 pkt 4: incident management; art. 11 ust. 1 pkt 4-4c: serious incident: early warning within 24 h, notification within 72 h, final report within one month
-- **CRA:** Art. 14(1)-(4): report actively exploited vulnerabilities and severe incidents via the single reporting platform (24 h / 72 h / final report)
+- **KSC:** art. 8 ust. 1 pkt 4 (supporting): incident management; art. 11 ust. 1 pkt 4-4c (supporting): significant incident (incydent poważny): early warning within 24 h, notification within 72 h, final report within one month
+- **CRA:** Art. 14(1)-(4) (supporting): report actively exploited vulnerabilities and severe incidents via the single reporting platform (24 h / 72 h / final report)
 - **Evidence:** `repo-checks.json`
 
 ## Evidence files (SHA-256)
 
 | File | SHA-256 | Bytes |
 |---|---|---|
-| `repo-checks.json` | `91ebda29928f1844bf25f6a5d1ff24a9104ffd54ab6851d2188de0a940593698` | 1769 |
+| `repo-checks.json` | `055345652c12476e20a621558b79f533c309b1b473aa54e3891e01d9eb1cc81c` | 1911 |
 | `sbom.cdx.json` | `e492a09aec2560ca34bdf0fcdf10f9c188db048b034766e2bc5b0249b74b5342` | 3095 |
 | `scorecard.json` | `43811c3da7880afe9f2e58fa5709452403229a852070bb53fc902e7a7ffc7d74` | 5328 |
+| `secrets.gitleaks.baseline.json` | `6d1f2c23df6e1accdf27a32063d4d31b415fc6299e67d46cc9705fb8b518f381` | 706 |
 | `secrets.gitleaks.json` | `6d1f2c23df6e1accdf27a32063d4d31b415fc6299e67d46cc9705fb8b518f381` | 706 |
 | `vulnerabilities.trivy.json` | `4ed642216327a45b06061643c760ca128d43cc730c232ce79d388534f4f0ed52` | 13056 |
 
@@ -229,4 +238,4 @@ Incident reporting runbook: not found (see templates/).
 
 Need help closing the gaps? AIRCLOUD: https://aircloud.com.pl/consulting/?from=evidence-kit
 
-Generated by evidence-kit 0.1.0 (https://github.com/lkolo-prez/evidence-kit), Apache-2.0.
+Generated by evidence-kit 0.1.0 (https://github.com/AIRCLOUD-PL/evidence-kit), Apache-2.0.

@@ -1,6 +1,6 @@
 # Incident runbook (evidence-kit itself)
 
-evidence-kit is a free, non-commercial open-source tool. This short runbook covers incidents
+evidence-kit is a free open-source tool. This short runbook covers incidents
 that affect the kit and its users, for example a compromised pinned action or binary.
 The full, reusable template for organisations (KSC and CRA deadlines) is in
 [`templates/en/incident-and-vulnerability-reporting.md`](../templates/en/incident-and-vulnerability-reporting.md)
