@@ -167,9 +167,9 @@ dependencies). Full output: [EN](examples/report/evidence-report.md),
 
 | ID | Outcome | Result | KSC | CRA |
 |---|---|---|---|---|
-| EK-SBOM | **PASS** | CycloneDX 1.6 SBOM with 4 packages (4 with purl). | art. 8 ust. 1 pkt 2 lit. e, m; art. 8 ust. 2 | Annex I, Part II(1); Art. 13(5) |
+| EK-SBOM | **PASS** | CycloneDX 1.6 SBOM: 4 package(s), 4 with purl. | art. 8 ust. 1 pkt 2 lit. e, m; art. 8 ust. 2 | Annex I, Part II(1); Art. 13(5) |
 | EK-VULN | **FAIL** | Known vulnerabilities: 7 high, 12 medium; 1 suppressed by VEX. | art. 8 ust. 1 pkt 3; pkt 5 lit. b, d | Annex I, Part I(2)(a); Part II(1), (2) |
-| EK-SECRETS | **FAIL** | 1 potential secret(s) in git history (1 rule types). Rotate and remove them. | art. 8 ust. 1 pkt 2 lit. j, n; pkt 5 lit. a | Annex I, Part I(2)(d), (e) |
+| EK-SECRETS | **FAIL** | 1 potential secret(s) in git history (rule types: 1). Rotate and remove them. | art. 8 ust. 1 pkt 2 lit. j, n; pkt 5 lit. a | Annex I, Part I(2)(d), (e) |
 | EK-SCORECARD | **WARN** | Scorecard 6.2/10 (pass >= 7.0). | art. 8 ust. 1 pkt 2 lit. b, h | Annex I, Part II(3) |
 | EK-BRANCH-PROTECTION | **PASS** | `main` requires pull requests (+ non_fast_forward, deletion). | art. 8 ust. 1 pkt 5 lit. c | Annex I, Part I(2)(d), (f) |
 | EK-INCIDENT-RUNBOOK | **WARN** | Incident reporting runbook: not found (see templates/). | art. 8 ust. 1 pkt 4; art. 11 ust. 1 pkt 4-4c | Art. 14(1)-(4) |

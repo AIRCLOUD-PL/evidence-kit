@@ -23,9 +23,9 @@ What this report does not prove: an information security management system (SZBI
 
 | ID | Control | Outcome | Result | KSC | CRA |
 |---|---|---|---|---|---|
-| EK-SBOM | Software bill of materials (CycloneDX) | **PASS** | CycloneDX 1.6 SBOM with 4 packages (4 with purl). | art. 8 ust. 1 pkt 2 lit. e<br>art. 8 ust. 1 pkt 2 lit. m<br>art. 8 ust. 2 | Annex I, Part II(1)<br>Art. 13(5) |
+| EK-SBOM | Software bill of materials (CycloneDX) | **PASS** | CycloneDX 1.6 SBOM: 4 package(s), 4 with purl. | art. 8 ust. 1 pkt 2 lit. e<br>art. 8 ust. 1 pkt 2 lit. m<br>art. 8 ust. 2 | Annex I, Part II(1)<br>Art. 13(5) |
 | EK-VULN | Known vulnerabilities in dependencies (SBOM scan, optional VEX) | **FAIL** | Known vulnerabilities: 7 high, 12 medium; 1 suppressed by VEX. | art. 8 ust. 1 pkt 3<br>art. 8 ust. 1 pkt 5 lit. b<br>art. 8 ust. 1 pkt 5 lit. d | Annex I, Part I(2)(a)<br>Annex I, Part II(1)<br>Annex I, Part II(2) |
-| EK-SECRETS | No secrets in git history (gitleaks) | **FAIL** | 1 potential secret(s) in git history (1 rule types). Rotate and remove them. | art. 8 ust. 1 pkt 2 lit. n<br>art. 8 ust. 1 pkt 2 lit. j<br>art. 8 ust. 1 pkt 5 lit. a | Annex I, Part I(2)(d)<br>Annex I, Part I(2)(e) |
+| EK-SECRETS | No secrets in git history (gitleaks) | **FAIL** | 1 potential secret(s) in git history (rule types: 1). Rotate and remove them. | art. 8 ust. 1 pkt 2 lit. n<br>art. 8 ust. 1 pkt 2 lit. j<br>art. 8 ust. 1 pkt 5 lit. a | Annex I, Part I(2)(d)<br>Annex I, Part I(2)(e) |
 | EK-SCORECARD | OpenSSF Scorecard (repository security practices) | **WARN** | Scorecard 6.2/10 (pass >= 7.0). Lowest: CII-Best-Practices, Fuzzing, Vulnerabilities, Branch-Protection, Contributors. | art. 8 ust. 1 pkt 2 lit. b<br>art. 8 ust. 1 pkt 2 lit. h | Annex I, Part II(3) |
 | EK-SECURITY-POLICY | Security policy with a reporting contact (SECURITY.md) | **PASS** | SECURITY.md with a reporting contact. Private vulnerability reporting is enabled. | art. 8 ust. 1 pkt 3<br>art. 8 ust. 1 pkt 4 | Annex I, Part II(6)<br>Art. 13(17) |
 | EK-CVD | Coordinated vulnerability disclosure (CVD) policy | **PASS** | CVD section found in SECURITY.md. | art. 8 ust. 1 pkt 3<br>art. 8 ust. 1 pkt 5 lit. d | Annex I, Part II(5)<br>Art. 13(8) |
@@ -55,7 +55,7 @@ What this report does not prove: an information security management system (SZBI
 
 ### EK-SBOM: Software bill of materials (CycloneDX) (PASS)
 
-CycloneDX 1.6 SBOM with 4 packages (4 with purl).
+CycloneDX 1.6 SBOM: 4 package(s), 4 with purl.
 
 - **KSC:** art. 8 ust. 1 pkt 2 lit. e: security and continuity of the ICT supply chain (products, services, processes); art. 8 ust. 1 pkt 2 lit. m: asset management; art. 8 ust. 2: supply-chain measures consider supplier vulnerabilities and overall product quality
 - **CRA:** Annex I, Part II(1): identify and document vulnerabilities and components, incl. an SBOM; Art. 13(5): due diligence when integrating third-party components, incl. open source
@@ -99,7 +99,7 @@ Known vulnerabilities: 7 high, 12 medium; 1 suppressed by VEX.
 
 ### EK-SECRETS: No secrets in git history (gitleaks) (FAIL)
 
-1 potential secret(s) in git history (1 rule types). Rotate and remove them.
+1 potential secret(s) in git history (rule types: 1). Rotate and remove them.
 
 - **KSC:** art. 8 ust. 1 pkt 2 lit. n: access control policies; art. 8 ust. 1 pkt 2 lit. j: basic cyber hygiene; art. 8 ust. 1 pkt 5 lit. a: mechanisms ensuring confidentiality, integrity, availability and authenticity of data
 - **CRA:** Annex I, Part I(2)(d): protection from unauthorised access; Annex I, Part I(2)(e): confidentiality of data, e.g. encryption at rest and in transit

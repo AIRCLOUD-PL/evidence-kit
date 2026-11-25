@@ -50,7 +50,7 @@
       ],
       "outcome": "pass",
       "result": {
-        "en": "CycloneDX 1.6 SBOM with 4 packages (4 with purl).",
+        "en": "CycloneDX 1.6 SBOM: 4 package(s), 4 with purl.",
         "pl": "SBOM CycloneDX 1.6: pakiety: 4 (z purl: 4)."
       },
       "evidence": [
@@ -272,7 +272,7 @@
       ],
       "outcome": "fail",
       "result": {
-        "en": "1 potential secret(s) in git history (1 rule types). Rotate and remove them.",
+        "en": "1 potential secret(s) in git history (rule types: 1). Rotate and remove them.",
         "pl": "Potencjalne sekrety w historii git: 1 (typy reguł: 1). Unieważnij je i usuń."
       },
       "evidence": [

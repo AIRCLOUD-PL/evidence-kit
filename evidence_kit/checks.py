@@ -104,7 +104,7 @@ def check_sbom(ev: Evidence, control: dict[str, Any]) -> dict[str, Any]:
         )
     return result(
         "pass",
-        f"CycloneDX {data['spec_version']} SBOM with {len(libs)} packages ({with_purl} with purl).",
+        f"CycloneDX {data['spec_version']} SBOM: {len(libs)} package(s), {with_purl} with purl.",
         f"SBOM CycloneDX {data['spec_version']}: pakiety: {len(libs)} (z purl: {with_purl}).",
         **data,
     )
@@ -229,7 +229,7 @@ def check_secrets(ev: Evidence, control: dict[str, Any]) -> dict[str, Any]:
         )
     return result(
         "fail",
-        f"{n} potential secret(s) in git history ({len(rules)} rule types). Rotate and remove them.",
+        f"{n} potential secret(s) in git history (rule types: {len(rules)}). Rotate and remove them.",
         f"Potencjalne sekrety w historii git: {n} (typy reguł: {len(rules)}). Unieważnij je i usuń.",
         findings=n,
         by_rule=dict(rules),
