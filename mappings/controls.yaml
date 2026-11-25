@@ -1,0 +1,527 @@
+# evidence-kit control mapping.
+#
+# Each control maps to provisions of:
+#   - KSC: ustawa z dnia 5 lipca 2018 r. o krajowym systemie cyberbezpieczeństwa
+#     (t.j. Dz.U. 2024 poz. 1077), as amended by the act of 23 January 2026,
+#     Dz.U. 2026 poz. 252 (Polish NIS2 transposition, in force 2026-04-03).
+#   - CRA: Regulation (EU) 2024/2847 (Cyber Resilience Act).
+#   - OSPS: OpenSSF Open Source Project Security Baseline (cross-reference only).
+#
+# Citations were checked against the primary texts on 2026-11-25:
+#   KSC art. 8 and art. 11 as worded by Dz.U. 2026 poz. 252 (art. 1 pkt 16 and 19),
+#   CRA art. 13, art. 14 and Annex I (EUR-Lex / Publications Office, EN and PL).
+#
+# The mapping is INFORMATIVE: a control "supports" a provision; it never proves
+# that an organisation fulfils it. See `disclaimer`.
+#
+# Field `status`: auto   = evaluated by the kit from machine-readable evidence,
+#                 manual = a human must attach the evidence listed in `evidence`.
+schema: evidence-kit/mapping/v1
+version: "0.1.0"
+updated: "2026-11-25"
+
+disclaimer:
+  en: >-
+    Informative mapping only. This is not legal advice and not a certification.
+    The statutory KSC audit (art. 15) is performed by an authorised auditor.
+    Automated results show what was observed in the repository at one commit;
+    they do not prove that an information security management system exists.
+  pl: >-
+    Mapowanie ma charakter wyłącznie informacyjny. To nie jest porada prawna ani
+    certyfikacja; ustawowy audyt KSC (art. 15) wykonuje uprawniony audytor.
+    Wyniki automatyczne pokazują stan repozytorium w jednym commicie i nie dowodzą
+    istnienia systemu zarządzania bezpieczeństwem informacji.
+
+sources:
+  ksc:
+    title:
+      en: Polish Act on the National Cybersecurity System (KSC) as amended by Dz.U. 2026 poz. 252
+      pl: Ustawa o krajowym systemie cyberbezpieczeństwa w brzmieniu nadanym ustawą z 23.01.2026 r. (Dz.U. 2026 poz. 252)
+    url: https://eli.gov.pl/eli/DU/2026/252/ogl
+    base_act_url: https://eli.gov.pl/eli/DU/2024/1077/ogl
+  cra:
+    title:
+      en: Regulation (EU) 2024/2847 (Cyber Resilience Act)
+      pl: Rozporządzenie (UE) 2024/2847 (akt o cyberodporności, CRA)
+    url: https://eur-lex.europa.eu/eli/reg/2024/2847/oj
+  cert_pl:
+    title:
+      en: CERT Polska, Good practices for software security management (CRA guide), May 2026
+      pl: CERT Polska, Dobre praktyki zarządzania bezpieczeństwem oprogramowania (poradnik CRA), maj 2026
+    url: https://cert.pl/uploads/docs/CERT_Polska_Dobre_praktyki_zarzadzania_bezpieczenstwem_oprogramowania.pdf
+  osps:
+    title:
+      en: OpenSSF Open Source Project Security Baseline
+      pl: OpenSSF Open Source Project Security Baseline
+    url: https://baseline.openssf.org
+
+references:
+  # --- KSC (Polish act) -------------------------------------------------------
+  KSC-8.1.1:
+    cite: art. 8 ust. 1 pkt 1
+    en: systematic incident risk assessment and risk management
+    pl: systematyczne szacowanie ryzyka wystąpienia incydentu i zarządzanie nim
+  KSC-8.1.2a:
+    cite: art. 8 ust. 1 pkt 2 lit. a
+    en: risk-assessment and information-system security policies, incl. topic-specific policies
+    pl: polityki szacowania ryzyka i bezpieczeństwa systemu informacyjnego, w tym polityki tematyczne
+  KSC-8.1.2b:
+    cite: art. 8 ust. 1 pkt 2 lit. b
+    en: security in acquisition, development, maintenance and operation, incl. testing
+    pl: bezpieczeństwo w procesie nabywania, rozwoju, utrzymania i eksploatacji, w tym testowanie
+  KSC-8.1.2c:
+    cite: art. 8 ust. 1 pkt 2 lit. c
+    en: physical and environmental security, incl. access control
+    pl: bezpieczeństwo fizyczne i środowiskowe uwzględniające kontrolę dostępu
+  KSC-8.1.2d:
+    cite: art. 8 ust. 1 pkt 2 lit. d
+    en: human resources security
+    pl: bezpieczeństwo zasobów ludzkich
+  KSC-8.1.2e:
+    cite: art. 8 ust. 1 pkt 2 lit. e
+    en: security and continuity of the ICT supply chain (products, services, processes)
+    pl: bezpieczeństwo i ciągłość łańcucha dostaw produktów, usług i procesów ICT
+  KSC-8.1.2f:
+    cite: art. 8 ust. 1 pkt 2 lit. f
+    en: business continuity, contingency and recovery plans (implemented, documented, tested)
+    pl: plany ciągłości działania, plany awaryjne i plany odtworzenia (wdrażanie, dokumentowanie, testowanie)
+  KSC-8.1.2g:
+    cite: art. 8 ust. 1 pkt 2 lit. g
+    en: continuous monitoring of the information system
+    pl: objęcie systemu informacyjnego monitorowaniem w trybie ciągłym
+  KSC-8.1.2h:
+    cite: art. 8 ust. 1 pkt 2 lit. h
+    en: policies and procedures to assess the effectiveness of measures
+    pl: polityki i procedury oceny skuteczności środków technicznych i organizacyjnych
+  KSC-8.1.2i:
+    cite: art. 8 ust. 1 pkt 2 lit. i
+    en: cybersecurity education of staff
+    pl: edukacja z zakresu cyberbezpieczeństwa dla personelu
+  KSC-8.1.2j:
+    cite: art. 8 ust. 1 pkt 2 lit. j
+    en: basic cyber hygiene
+    pl: podstawowe zasady cyberhigieny
+  KSC-8.1.2k:
+    cite: art. 8 ust. 1 pkt 2 lit. k
+    en: policies and procedures for cryptography, incl. encryption where appropriate
+    pl: polityki i procedury stosowania kryptografii, w tym szyfrowania
+  KSC-8.1.2l:
+    cite: art. 8 ust. 1 pkt 2 lit. l
+    en: secure electronic communication, incl. multi-factor authentication where appropriate
+    pl: bezpieczne środki komunikacji elektronicznej, w tym uwierzytelnianie wieloskładnikowe
+  KSC-8.1.2m:
+    cite: art. 8 ust. 1 pkt 2 lit. m
+    en: asset management
+    pl: zarządzanie aktywami
+  KSC-8.1.2n:
+    cite: art. 8 ust. 1 pkt 2 lit. n
+    en: access control policies
+    pl: polityki kontroli dostępu
+  KSC-8.1.3:
+    cite: art. 8 ust. 1 pkt 3
+    en: collecting information on cyber threats and vulnerabilities
+    pl: zbieranie informacji o cyberzagrożeniach i podatnościach
+  KSC-8.1.4:
+    cite: art. 8 ust. 1 pkt 4
+    en: incident management
+    pl: zarządzanie incydentami
+  KSC-8.1.5a:
+    cite: art. 8 ust. 1 pkt 5 lit. a
+    en: mechanisms ensuring confidentiality, integrity, availability and authenticity of data
+    pl: mechanizmy zapewniające poufność, integralność, dostępność i autentyczność danych
+  KSC-8.1.5b:
+    cite: art. 8 ust. 1 pkt 5 lit. b
+    en: regular software updates, following vendor recommendations
+    pl: regularne aktualizacje oprogramowania stosownie do zaleceń producenta
+  KSC-8.1.5c:
+    cite: art. 8 ust. 1 pkt 5 lit. c
+    en: protection against unauthorised modification
+    pl: ochrona przed nieuprawnioną modyfikacją w systemie informacyjnym
+  KSC-8.1.5d:
+    cite: art. 8 ust. 1 pkt 5 lit. d
+    en: prompt action once vulnerabilities or cyber threats are detected
+    pl: niezwłoczne działania po dostrzeżeniu podatności lub cyberzagrożeń
+  KSC-8.2:
+    cite: art. 8 ust. 2
+    en: supply-chain measures consider supplier vulnerabilities and overall product quality
+    pl: przy łańcuchu dostaw uwzględnia się podatności i ogólną jakość produktów dostawcy
+  KSC-8e:
+    cite: art. 8e
+    en: annual cybersecurity training of the entity's manager (documented)
+    pl: coroczne, udokumentowane szkolenie kierownika podmiotu
+  KSC-11.1.4:
+    cite: art. 11 ust. 1 pkt 4-4c
+    en: "serious incident: early warning within 24 h, notification within 72 h, final report within one month"
+    pl: "incydent poważny: wczesne ostrzeżenie do 24 h, zgłoszenie do 72 h, sprawozdanie końcowe w ciągu miesiąca"
+  KSC-15.1:
+    cite: art. 15 ust. 1
+    en: security audit of the information system at least every 3 years (essential entities)
+    pl: audyt bezpieczeństwa systemu informacyjnego co najmniej raz na 3 lata (podmioty kluczowe)
+
+  # --- CRA (EU regulation) ----------------------------------------------------
+  CRA-13.2:
+    cite: Art. 13(2)-(3)
+    cite_pl: art. 13 ust. 2-3
+    en: documented cybersecurity risk assessment of the product
+    pl: udokumentowana ocena ryzyka w cyberprzestrzeni dla produktu
+  CRA-13.5:
+    cite: Art. 13(5)
+    cite_pl: art. 13 ust. 5
+    en: due diligence when integrating third-party components, incl. open source
+    pl: należyta staranność przy integrowaniu komponentów stron trzecich, w tym open source
+  CRA-13.8:
+    cite: Art. 13(8)
+    cite_pl: art. 13 ust. 8
+    en: effective vulnerability handling during the support period
+    pl: skuteczne postępowanie z podatnościami w okresie wsparcia
+  CRA-13.17:
+    cite: Art. 13(17)
+    cite_pl: art. 13 ust. 17
+    en: single point of contact for users, incl. vulnerability reporting
+    pl: pojedynczy punkt kontaktowy dla użytkowników, w tym do zgłaszania podatności
+  CRA-14:
+    cite: Art. 14(1)-(4)
+    cite_pl: art. 14 ust. 1-4
+    en: "report actively exploited vulnerabilities and severe incidents via the single reporting platform (24 h / 72 h / final report)"
+    pl: "zgłaszanie aktywnie wykorzystywanych podatności i poważnych incydentów przez pojedynczą platformę zgłaszania (24 h / 72 h / raport końcowy)"
+  CRA-I.1.1:
+    cite: Annex I, Part I(1)
+    cite_pl: zał. I część I pkt 1
+    en: appropriate level of cybersecurity based on the risks
+    pl: odpowiedni poziom cyberbezpieczeństwa stosownie do ryzyka
+  CRA-I.1.2a:
+    cite: Annex I, Part I(2)(a)
+    cite_pl: zał. I część I pkt 2 lit. a
+    en: made available without known exploitable vulnerabilities
+    pl: udostępniane bez znanych i możliwych do wykorzystania podatności
+  CRA-I.1.2b:
+    cite: Annex I, Part I(2)(b)
+    cite_pl: zał. I część I pkt 2 lit. b
+    en: secure by default configuration
+    pl: bezpieczna konfiguracja domyślna
+  CRA-I.1.2c:
+    cite: Annex I, Part I(2)(c)
+    cite_pl: zał. I część I pkt 2 lit. c
+    en: vulnerabilities can be addressed through security updates
+    pl: możliwość eliminowania podatności przez aktualizacje zabezpieczeń
+  CRA-I.1.2d:
+    cite: Annex I, Part I(2)(d)
+    cite_pl: zał. I część I pkt 2 lit. d
+    en: protection from unauthorised access
+    pl: ochrona przed nieuprawnionym dostępem
+  CRA-I.1.2e:
+    cite: Annex I, Part I(2)(e)
+    cite_pl: zał. I część I pkt 2 lit. e
+    en: confidentiality of data, e.g. encryption at rest and in transit
+    pl: poufność danych, np. szyfrowanie danych odłożonych i przesyłanych
+  CRA-I.1.2f:
+    cite: Annex I, Part I(2)(f)
+    cite_pl: zał. I część I pkt 2 lit. f
+    en: integrity of data, commands, programs and configuration
+    pl: integralność danych, komend, programów i konfiguracji
+  CRA-I.1.2h:
+    cite: Annex I, Part I(2)(h)
+    cite_pl: zał. I część I pkt 2 lit. h
+    en: availability of essential functions, also after an incident
+    pl: dostępność podstawowych funkcji, również po incydencie
+  CRA-I.1.2j:
+    cite: Annex I, Part I(2)(j)
+    cite_pl: zał. I część I pkt 2 lit. j
+    en: limited attack surface
+    pl: ograniczona powierzchnia ataku
+  CRA-I.1.2l:
+    cite: Annex I, Part I(2)(l)
+    cite_pl: zał. I część I pkt 2 lit. l
+    en: security logging and monitoring of relevant internal activity
+    pl: rejestrowanie i monitorowanie aktywności istotnej dla bezpieczeństwa
+  CRA-I.2.1:
+    cite: Annex I, Part II(1)
+    cite_pl: zał. I część II pkt 1
+    en: identify and document vulnerabilities and components, incl. an SBOM
+    pl: identyfikowanie i dokumentowanie podatności i komponentów, w tym SBOM
+  CRA-I.2.2:
+    cite: Annex I, Part II(2)
+    cite_pl: zał. I część II pkt 2
+    en: address and remediate vulnerabilities without delay
+    pl: bezzwłoczne reagowanie na podatności i ich eliminowanie
+  CRA-I.2.3:
+    cite: Annex I, Part II(3)
+    cite_pl: zał. I część II pkt 3
+    en: effective and regular security tests and reviews
+    pl: skuteczne i regularne testy oraz przeglądy bezpieczeństwa
+  CRA-I.2.4:
+    cite: Annex I, Part II(4)
+    cite_pl: zał. I część II pkt 4
+    en: publicly disclose information about fixed vulnerabilities
+    pl: publiczne ujawnianie informacji o naprawionych podatnościach
+  CRA-I.2.5:
+    cite: Annex I, Part II(5)
+    cite_pl: zał. I część II pkt 5
+    en: coordinated vulnerability disclosure policy
+    pl: polityka skoordynowanego ujawniania podatności
+  CRA-I.2.6:
+    cite: Annex I, Part II(6)
+    cite_pl: zał. I część II pkt 6
+    en: facilitate sharing vulnerability information, incl. a contact address
+    pl: ułatwianie wymiany informacji o podatnościach, w tym adres kontaktowy
+  CRA-I.2.7:
+    cite: Annex I, Part II(7)
+    cite_pl: zał. I część II pkt 7
+    en: secure distribution of updates
+    pl: bezpieczna dystrybucja aktualizacji
+  CRA-I.2.8:
+    cite: Annex I, Part II(8)
+    cite_pl: zał. I część II pkt 8
+    en: disseminate security updates without delay, with advisory messages
+    pl: bezzwłoczne rozpowszechnianie aktualizacji zabezpieczeń z komunikatami doradczymi
+
+controls:
+  # ===================== automated =====================
+  - id: EK-SBOM
+    status: auto
+    check: sbom
+    title:
+      en: Software bill of materials (CycloneDX)
+      pl: Wykaz komponentów oprogramowania (SBOM, CycloneDX)
+    evidence: [sbom.cdx.json]
+    ksc: [KSC-8.1.2e, KSC-8.1.2m, KSC-8.2]
+    cra: [CRA-I.2.1, CRA-13.5]
+    osps: [OSPS-QA-02.01, OSPS-QA-02.02]
+
+  - id: EK-VULN
+    status: auto
+    check: vulnerabilities
+    title:
+      en: Known vulnerabilities in dependencies (SBOM scan, optional VEX)
+      pl: Znane podatności w zależnościach (skan SBOM, opcjonalnie VEX)
+    evidence: [vulnerabilities.trivy.json, sbom.cdx.json]
+    params:
+      fail_severities: [CRITICAL, HIGH]
+      warn_severities: [MEDIUM, LOW, UNKNOWN]
+    ksc: [KSC-8.1.3, KSC-8.1.5b, KSC-8.1.5d]
+    cra: [CRA-I.1.2a, CRA-I.2.1, CRA-I.2.2]
+    osps: [OSPS-VM-05.03, OSPS-VM-04.02]
+
+  - id: EK-SECRETS
+    status: auto
+    check: secrets
+    title:
+      en: No secrets in git history (gitleaks)
+      pl: Brak sekretów w historii git (gitleaks)
+    evidence: [secrets.gitleaks.json]
+    ksc: [KSC-8.1.2n, KSC-8.1.2j, KSC-8.1.5a]
+    cra: [CRA-I.1.2d, CRA-I.1.2e]
+    osps: [OSPS-BR-07.01]
+
+  - id: EK-SCORECARD
+    status: auto
+    check: scorecard
+    title:
+      en: OpenSSF Scorecard (repository security practices)
+      pl: OpenSSF Scorecard (praktyki bezpieczeństwa repozytorium)
+    evidence: [scorecard.json]
+    params:
+      pass_min: 7.0
+      warn_min: 4.0
+    ksc: [KSC-8.1.2b, KSC-8.1.2h]
+    cra: [CRA-I.2.3]
+    osps: []
+
+  - id: EK-SECURITY-POLICY
+    status: auto
+    check: security_policy
+    title:
+      en: Security policy with a reporting contact (SECURITY.md)
+      pl: Polityka bezpieczeństwa z kontaktem do zgłoszeń (SECURITY.md)
+    evidence: [repo-checks.json]
+    ksc: [KSC-8.1.3, KSC-8.1.4]
+    cra: [CRA-I.2.6, CRA-13.17]
+    osps: [OSPS-VM-02.01, OSPS-VM-03.01]
+
+  - id: EK-CVD
+    status: auto
+    check: cvd_policy
+    title:
+      en: Coordinated vulnerability disclosure (CVD) policy
+      pl: Polityka skoordynowanego ujawniania podatności (CVD)
+    evidence: [repo-checks.json]
+    ksc: [KSC-8.1.3, KSC-8.1.5d]
+    cra: [CRA-I.2.5, CRA-13.8]
+    osps: [OSPS-VM-01.01]
+
+  - id: EK-SECURITY-TXT
+    status: auto
+    check: security_txt
+    title:
+      en: security.txt (RFC 9116) with Contact and valid Expires
+      pl: security.txt (RFC 9116) z polem Contact i ważnym Expires
+    evidence: [repo-checks.json]
+    ksc: [KSC-8.1.3]
+    cra: [CRA-I.2.6, CRA-13.17]
+    osps: []
+
+  - id: EK-CODEOWNERS
+    status: auto
+    check: codeowners
+    title:
+      en: Code ownership defined (CODEOWNERS)
+      pl: Określeni właściciele kodu (CODEOWNERS)
+    evidence: [repo-checks.json]
+    ksc: [KSC-8.1.2n, KSC-8.1.5c]
+    cra: [CRA-I.1.2f]
+    osps: []
+
+  - id: EK-BRANCH-PROTECTION
+    status: auto
+    check: branch_protection
+    title:
+      en: Default branch protected (branch protection or ruleset)
+      pl: Chroniona gałąź domyślna (ochrona gałęzi lub ruleset)
+    evidence: [repo-checks.json]
+    ksc: [KSC-8.1.5c, KSC-8.1.2n]
+    cra: [CRA-I.1.2f, CRA-I.1.2d]
+    osps: [OSPS-AC-03.01, OSPS-AC-03.02, OSPS-QA-07.01]
+
+  - id: EK-DEP-UPDATES
+    status: auto
+    check: dependency_updates
+    title:
+      en: Automated dependency updates (Dependabot or Renovate)
+      pl: Automatyczne aktualizacje zależności (Dependabot lub Renovate)
+    evidence: [repo-checks.json]
+    ksc: [KSC-8.1.5b]
+    cra: [CRA-I.2.2]
+    osps: []
+
+  - id: EK-SUPPLIERS
+    status: auto
+    check: supplier_register
+    title:
+      en: Supplier register present (content needs human review)
+      pl: Rejestr dostawców w repozytorium (treść wymaga oceny człowieka)
+    evidence: [repo-checks.json]
+    ksc: [KSC-8.1.2e, KSC-8.2]
+    cra: [CRA-13.5]
+    osps: []
+
+  - id: EK-INCIDENT-RUNBOOK
+    status: auto
+    check: incident_runbook
+    title:
+      en: Incident and vulnerability reporting runbook present
+      pl: Procedura zgłaszania incydentów i podatności w repozytorium
+    evidence: [repo-checks.json]
+    ksc: [KSC-8.1.4, KSC-11.1.4]
+    cra: [CRA-14]
+    osps: []
+
+  # ===================== manual =====================
+  - id: M-RISK
+    status: manual
+    title:
+      en: Risk assessment and risk treatment
+      pl: Szacowanie ryzyka i postępowanie z ryzykiem
+    evidence:
+      en: Current risk register and method, product risk assessment (CRA), management approval.
+      pl: Aktualny rejestr ryzyk i metodyka, ocena ryzyka produktu (CRA), akceptacja kierownictwa.
+    ksc: [KSC-8.1.1, KSC-8.1.2a]
+    cra: [CRA-13.2, CRA-I.1.1]
+
+  - id: M-BCP
+    status: manual
+    title:
+      en: Business continuity, backups and recovery
+      pl: Ciągłość działania, kopie zapasowe i odtwarzanie
+    evidence:
+      en: BCP/DRP, backup policy, results of the last restore test.
+      pl: Plan ciągłości działania i odtwarzania, polityka kopii, wynik ostatniego testu odtworzenia.
+    ksc: [KSC-8.1.2f]
+    cra: [CRA-I.1.2h]
+
+  - id: M-CRYPTO
+    status: manual
+    title:
+      en: Cryptography and encryption policy
+      pl: Polityka kryptografii i szyfrowania
+    evidence:
+      en: Crypto policy (algorithms, key management), TLS and at-rest encryption configuration.
+      pl: Polityka kryptograficzna (algorytmy, zarządzanie kluczami), konfiguracja TLS i szyfrowania danych.
+    ksc: [KSC-8.1.2k]
+    cra: [CRA-I.1.2e]
+
+  - id: M-ACCESS
+    status: manual
+    title:
+      en: Access control, MFA and physical security
+      pl: Kontrola dostępu, MFA i bezpieczeństwo fizyczne
+    evidence:
+      en: Access control policy, MFA enforcement (e.g. GitHub org setting), periodic access reviews.
+      pl: Polityka kontroli dostępu, wymuszenie MFA (np. ustawienie organizacji GitHub), okresowe przeglądy uprawnień.
+    ksc: [KSC-8.1.2c, KSC-8.1.2l, KSC-8.1.2n]
+    cra: [CRA-I.1.2d]
+
+  - id: M-PEOPLE
+    status: manual
+    title:
+      en: Staff security, training and cyber hygiene
+      pl: Bezpieczeństwo personelu, szkolenia i cyberhigiena
+    evidence:
+      en: Training records for staff and the annual training of the manager (art. 8e), onboarding/offboarding procedure.
+      pl: Ewidencja szkoleń personelu i corocznego szkolenia kierownika (art. 8e), procedura przyjęcia i odejścia pracownika.
+    ksc: [KSC-8.1.2d, KSC-8.1.2i, KSC-8.1.2j, KSC-8e]
+    cra: []
+
+  - id: M-MONITORING
+    status: manual
+    title:
+      en: Continuous monitoring and incident handling
+      pl: Monitorowanie w trybie ciągłym i obsługa incydentów
+    evidence:
+      en: Monitoring/SIEM scope, alerting, incident register, a tested reporting exercise.
+      pl: Zakres monitorowania (SIEM), alarmowanie, rejestr incydentów, przećwiczone zgłoszenie.
+    ksc: [KSC-8.1.2g, KSC-8.1.4]
+    cra: [CRA-I.1.2l]
+
+  - id: M-ASSETS
+    status: manual
+    title:
+      en: Asset inventory
+      pl: Inwentaryzacja aktywów
+    evidence:
+      en: Inventory of systems, services and repositories in scope, with owners.
+      pl: Wykaz systemów, usług i repozytoriów objętych zakresem, z właścicielami.
+    ksc: [KSC-8.1.2m]
+    cra: []
+
+  - id: M-UPDATES
+    status: manual
+    title:
+      en: Security update delivery, advisories and support period
+      pl: Dostarczanie aktualizacji zabezpieczeń, komunikaty i okres wsparcia
+    evidence:
+      en: Release process (signed releases), published advisories for fixed vulnerabilities, declared support period.
+      pl: Proces wydań (podpisane wydania), publikowane komunikaty o naprawionych podatnościach, zadeklarowany okres wsparcia.
+    ksc: [KSC-8.1.5b]
+    cra: [CRA-I.1.2c, CRA-I.2.4, CRA-I.2.7, CRA-I.2.8, CRA-13.8]
+
+  - id: M-SECURE-DESIGN
+    status: manual
+    title:
+      en: Secure by default and minimal attack surface
+      pl: Bezpieczna konfiguracja domyślna i ograniczona powierzchnia ataku
+    evidence:
+      en: Threat model or design review, hardening baseline, default configuration review.
+      pl: Model zagrożeń lub przegląd projektu, standard utwardzania, przegląd konfiguracji domyślnej.
+    ksc: [KSC-8.1.2b]
+    cra: [CRA-I.1.2b, CRA-I.1.2j]
+
+  - id: M-AUDIT
+    status: manual
+    title:
+      en: Statutory security audit
+      pl: Ustawowy audyt bezpieczeństwa
+    evidence:
+      en: Audit report by an authorised auditor (essential entities). This kit does not replace it.
+      pl: Sprawozdanie z audytu przeprowadzonego przez uprawnionego audytora (podmioty kluczowe). Ten zestaw go nie zastępuje.
+    ksc: [KSC-15.1]
+    cra: []

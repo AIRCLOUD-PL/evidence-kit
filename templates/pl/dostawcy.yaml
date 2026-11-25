@@ -1,0 +1,46 @@
+# Rejestr dostawców (łańcuch dostaw ICT). Szablon z evidence-kit (Apache-2.0).
+# Trzymaj go w repozytorium, np. docs/dostawcy.yaml, i przeglądaj co najmniej raz w roku.
+# Wspiera KSC art. 8 ust. 1 pkt 2 lit. e i art. 8 ust. 2 (podatności dostawcy, ogólna jakość
+# produktów, skoordynowana ocena Grupy Współpracy, wynik postępowania z art. 67b w sprawie
+# dostawcy wysokiego ryzyka) oraz CRA art. 13 ust. 5 (należyta staranność wobec komponentów
+# stron trzecich). Materiał informacyjny, nie jest poradą prawną.
+schema: evidence-kit/suppliers/v1
+owner: <rola>
+last_review: <RRRR-MM-DD>
+suppliers:
+  - id: DOS-001
+    name: <Przykładowa Chmura sp. z o.o.>
+    service: <hosting środowiska produkcyjnego (IaaS)>
+    type: service              # service (usługa) | software | hardware | open-source-component
+    criticality: high          # high | medium | low (wpływ na naszą usługę przy niedostępności lub kompromitacji)
+    data_access: personal-data # none | internal | personal-data | secrets
+    contract_ref: <nr umowy / umowa powierzenia / SLA>
+    security_clauses: true     # zgłaszanie incydentów, prawo audytu, podwykonawcy, wyjście z umowy
+    certifications: [ISO/IEC 27001]
+    known_vulnerabilities_considered: <jak śledzimy komunikaty bezpieczeństwa dostawcy>   # KSC art. 8 ust. 2 pkt 1
+    quality_assessment: <ankieta / przegląd, data, wynik>                                   # KSC art. 8 ust. 2 pkt 2
+    eu_coordinated_risk_assessment: <nie dotyczy lub odwołanie>                             # KSC art. 8 ust. 2 pkt 3
+    high_risk_supplier_decision: <brak znanych / odwołanie>                                 # KSC art. 8 ust. 2 pkt 4 (art. 67b)
+    last_assessment: <RRRR-MM-DD>
+    next_assessment: <RRRR-MM-DD>
+    exit_plan: <link>
+    owner: <rola>
+    notes: ""
+  - id: DOS-002
+    name: <biblioteka open source lub SDK dostawcy>
+    service: <komponent naszego produktu>
+    type: open-source-component
+    criticality: medium
+    data_access: none
+    contract_ref: <licencja, np. Apache-2.0>
+    security_clauses: false
+    certifications: []
+    known_vulnerabilities_considered: SBOM i skan podatności w artefakcie evidence (EK-SBOM, EK-VULN)
+    quality_assessment: <OpenSSF Scorecard projektu źródłowego, aktywność utrzymania>
+    eu_coordinated_risk_assessment: nie dotyczy
+    high_risk_supplier_decision: brak znanych
+    last_assessment: <RRRR-MM-DD>
+    next_assessment: <RRRR-MM-DD>
+    exit_plan: <komponent alternatywny>
+    owner: <rola>
+    notes: ""

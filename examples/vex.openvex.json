@@ -1,0 +1,16 @@
+{
+  "@context": "https://openvex.dev/ns/v0.2.0",
+  "@id": "https://example.com/vex/demo-app-2026-001",
+  "author": "Example maintainer <security@example.com>",
+  "timestamp": "2026-11-25T00:00:00Z",
+  "version": 1,
+  "statements": [
+    {
+      "vulnerability": { "name": "CVE-2021-33503" },
+      "products": [{ "@id": "pkg:pypi/urllib3@1.26.4" }],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "The application never parses untrusted URLs with urllib3."
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "schema": "evidence-kit/repo-checks/v1",
+  "collected_at": "2026-11-25T08:00:00+00:00",
+  "files": {
+    "security_policy": {
+      "paths": [
+        "SECURITY.md"
+      ],
+      "contact_found": true
+    },
+    "cvd_policy": {
+      "paths": [],
+      "section_in_security_md": true
+    },
+    "security_txt": [
+      {
+        "path": ".well-known/security.txt",
+        "contact": [
+          "mailto:security@example.com"
+        ],
+        "expires": "2027-11-01T00:00:00Z",
+        "expires_valid": true,
+        "policy": [
+          "https://example.com/security"
+        ],
+        "preferred_languages": "en, pl"
+      }
+    ],
+    "codeowners": {
+      "paths": [
+        ".github/CODEOWNERS"
+      ],
+      "rules": 1
+    },
+    "dependency_updates": {
+      "paths": [
+        ".github/dependabot.yml"
+      ]
+    },
+    "supplier_register": {
+      "paths": []
+    },
+    "incident_runbook": {
+      "paths": []
+    }
+  },
+  "meta": {
+    "kit_version": "0.1.0",
+    "repository": "example/demo-app",
+    "commit": "0123456789abcdef0123456789abcdef01234567",
+    "ref": "refs/heads/main",
+    "run_url": "https://github.com/example/demo-app/actions/runs/1234567890",
+    "tools": {
+      "trivy": "v0.70.0",
+      "gitleaks": "8.30.1",
+      "scorecard_action": "v2.6.0"
+    },
+    "vex_file": ".vex/openvex.json",
+    "scorecard_enabled": "true"
+  },
+  "github": {
+    "available": true,
+    "repository": "example/demo-app",
+    "repo_status": 200,
+    "default_branch": "main",
+    "visibility": "public",
+    "branch_status": 200,
+    "protected": true,
+    "rules_status": 200,
+    "rules": [
+      "deletion",
+      "non_fast_forward",
+      "pull_request"
+    ],
+    "protection_status": 404,
+    "private_vulnerability_reporting": true
+  }
+}

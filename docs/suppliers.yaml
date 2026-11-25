@@ -1,0 +1,71 @@
+# Supplier register of evidence-kit itself (format: templates/en/suppliers.yaml).
+schema: evidence-kit/suppliers/v1
+owner: maintainer
+last_review: 2026-11-25
+suppliers:
+  - id: SUP-001
+    name: GitHub (Actions, hosted runners, artifacts)
+    service: CI execution and artifact storage
+    type: service
+    criticality: high
+    data_access: internal
+    contract_ref: GitHub Terms of Service
+    known_vulnerabilities_considered: GitHub changelog and security advisories
+    quality_assessment: widely used platform
+    last_assessment: 2026-11-25
+    exit_plan: run the CLI locally (python -m evidence_kit) on any CI
+  - id: SUP-002
+    name: aquasecurity/trivy-action + Trivy
+    service: SBOM generation and vulnerability scan
+    type: open-source-component
+    criticality: high
+    data_access: none
+    contract_ref: Apache-2.0
+    known_vulnerabilities_considered: pinned to commit SHA (v0.36.0) and Trivy v0.70.0; trivy-action tags were force-pushed to malicious commits on 2026-03-19 (GHSA-69fq-xp46-6x23), so tags are never trusted
+    quality_assessment: OpenSSF Scorecard of upstream, release notes
+    last_assessment: 2026-11-25
+    exit_plan: anchore/syft for SBOM, google/osv-scanner for vulnerabilities
+  - id: SUP-003
+    name: gitleaks
+    service: secret scanning
+    type: open-source-component
+    criticality: medium
+    data_access: secrets
+    contract_ref: MIT
+    known_vulnerabilities_considered: CLI pinned to 8.30.1 with SHA-256 verification
+    quality_assessment: OpenSSF Scorecard of upstream
+    last_assessment: 2026-11-25
+    exit_plan: Trivy secret scanner
+  - id: SUP-004
+    name: ossf/scorecard-action
+    service: repository security practices score
+    type: open-source-component
+    criticality: low
+    data_access: internal
+    contract_ref: Apache-2.0
+    known_vulnerabilities_considered: pinned to commit SHA (v2.6.0)
+    quality_assessment: OpenSSF project
+    last_assessment: 2026-11-25
+    exit_plan: optional step (run-scorecard false)
+  - id: SUP-005
+    name: actions/checkout, actions/upload-artifact, step-security/harden-runner
+    service: workflow building blocks
+    type: open-source-component
+    criticality: medium
+    data_access: internal
+    contract_ref: MIT / Apache-2.0
+    known_vulnerabilities_considered: pinned to commit SHA, Dependabot updates
+    quality_assessment: widely used
+    last_assessment: 2026-11-25
+    exit_plan: n/a
+  - id: SUP-006
+    name: PyYAML
+    service: mapping file parser
+    type: open-source-component
+    criticality: low
+    data_access: none
+    contract_ref: MIT
+    known_vulnerabilities_considered: hash-pinned in requirements.txt, scanned by the self-check
+    quality_assessment: widely used
+    last_assessment: 2026-11-25
+    exit_plan: convert the mapping to JSON (stdlib)

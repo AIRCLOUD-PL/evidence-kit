@@ -1,0 +1,3 @@
+id,nazwa,usluga,typ,krytycznosc,dostep_do_danych,umowa,klauzule_bezpieczenstwa,certyfikaty,podatnosci_dostawcy_art8_ust2_pkt1,ocena_jakosci_art8_ust2_pkt2,ocena_skoordynowana_art8_ust2_pkt3,dostawca_wysokiego_ryzyka_art67b,ostatnia_ocena,nastepna_ocena,plan_wyjscia,wlasciciel,uwagi
+DOS-001,<Przykładowa Chmura sp. z o.o.>,<hosting produkcji (IaaS)>,usluga,wysoka,dane-osobowe,<umowa / powierzenie / SLA>,tak,ISO/IEC 27001,<źródło komunikatów>,<ankieta RRRR-MM-DD>,nie dotyczy,brak znanych,<RRRR-MM-DD>,<RRRR-MM-DD>,<link>,<rola>,
+DOS-002,<biblioteka open source>,<komponent produktu>,komponent-open-source,srednia,brak,Apache-2.0,nie,,SBOM + skan (EK-SBOM / EK-VULN),<Scorecard projektu>,nie dotyczy,brak znanych,<RRRR-MM-DD>,<RRRR-MM-DD>,<alternatywa>,<rola>,

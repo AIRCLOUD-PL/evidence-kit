@@ -1,0 +1,28 @@
+# Copy to .github/workflows/evidence.yml in your repository.
+#
+# Pin to a full commit SHA of a release (security best practice) and pass the same
+# value as kit-ref. Tags are shown here for readability only.
+name: evidence
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "0 5 * * 1" # weekly: new CVEs appear without new commits
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  evidence:
+    uses: lkolo-prez/evidence-kit/.github/workflows/evidence.yml@v0.1.0 # replace with the release SHA
+    permissions:
+      contents: read
+      actions: read
+    with:
+      kit-ref: v0.1.0 # same ref as above
+      # vex-file: .vex/openvex.json   # optional: suppress triaged "not affected" CVEs
+      # fail-on: high                 # optional: fail on HIGH/CRITICAL (default: report only)
+      # fail-on-secrets: true         # optional: fail when gitleaks finds secrets
+      # lang: pl,en                   # optional: Polish report first in the job summary

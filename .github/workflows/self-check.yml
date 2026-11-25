@@ -1,0 +1,31 @@
+# The kit runs on itself: same reusable workflow, scripts checked out at this commit.
+name: self-check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "17 6 * * 1" # weekly, so newly published CVEs show up without commits
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: self-check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  evidence:
+    uses: ./.github/workflows/evidence.yml
+    permissions:
+      contents: read
+      actions: read
+    with:
+      kit-repository: ${{ github.repository }}
+      kit-ref: ${{ github.sha }}
+      skip-dirs: tests/fixtures,examples # sample SBOMs with deliberately vulnerable packages
+      fail-on: critical
+      fail-on-secrets: true

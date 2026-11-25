@@ -1,0 +1,3 @@
+id,name,service,type,criticality,data_access,contract_ref,security_clauses,certifications,known_vulnerabilities_considered,quality_assessment,eu_coordinated_risk_assessment,high_risk_supplier_decision,last_assessment,next_assessment,exit_plan,owner,notes
+SUP-001,<Example Cloud Ltd>,<IaaS hosting of production>,service,high,personal-data,<contract / DPA / SLA>,yes,ISO/IEC 27001,<advisory feed>,<questionnaire YYYY-MM-DD>,n/a,none known,<YYYY-MM-DD>,<YYYY-MM-DD>,<link>,<role>,
+SUP-002,<open-source library>,<component in our product>,open-source-component,medium,none,Apache-2.0,no,,SBOM + scan (EK-SBOM / EK-VULN),<Scorecard of upstream>,n/a,none known,<YYYY-MM-DD>,<YYYY-MM-DD>,<alternative>,<role>,

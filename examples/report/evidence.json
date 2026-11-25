@@ -1,0 +1,924 @@
+{
+  "schema": "evidence-kit/v1",
+  "kit_version": "0.1.0",
+  "generated_at": "2026-11-25T00:00:00+00:00",
+  "repository": "example/demo-app",
+  "commit": "0123456789abcdef0123456789abcdef01234567",
+  "ref": "refs/heads/main",
+  "run_url": "https://github.com/example/demo-app/actions/runs/1234567890",
+  "tools": {
+    "trivy": "v0.70.0",
+    "gitleaks": "8.30.1",
+    "scorecard_action": "v2.6.0"
+  },
+  "mapping": {
+    "version": "0.1.0",
+    "updated": "2026-11-25"
+  },
+  "disclaimer": {
+    "en": "Informative mapping only. This is not legal advice and not a certification. The statutory KSC audit (art. 15) is performed by an authorised auditor. Automated results show what was observed in the repository at one commit; they do not prove that an information security management system exists.",
+    "pl": "Mapowanie ma charakter wyłącznie informacyjny. To nie jest porada prawna ani certyfikacja; ustawowy audyt KSC (art. 15) wykonuje uprawniony audytor. Wyniki automatyczne pokazują stan repozytorium w jednym commicie i nie dowodzą istnienia systemu zarządzania bezpieczeństwem informacji."
+  },
+  "summary": {
+    "pass": 7,
+    "warn": 3,
+    "fail": 2,
+    "unknown": 0,
+    "not-run": 0,
+    "manual": 10
+  },
+  "controls": [
+    {
+      "id": "EK-SBOM",
+      "mode": "auto",
+      "title": {
+        "en": "Software bill of materials (CycloneDX)",
+        "pl": "Wykaz komponentów oprogramowania (SBOM, CycloneDX)"
+      },
+      "ksc": [
+        "KSC-8.1.2e",
+        "KSC-8.1.2m",
+        "KSC-8.2"
+      ],
+      "cra": [
+        "CRA-I.2.1",
+        "CRA-13.5"
+      ],
+      "osps": [
+        "OSPS-QA-02.01",
+        "OSPS-QA-02.02"
+      ],
+      "outcome": "pass",
+      "result": {
+        "en": "CycloneDX 1.6 SBOM with 4 packages (4 with purl).",
+        "pl": "SBOM CycloneDX 1.6: pakiety: 4 (z purl: 4)."
+      },
+      "evidence": [
+        "sbom.cdx.json"
+      ],
+      "data": {
+        "spec_version": "1.6",
+        "serial_number": "urn:uuid:6337553d-e455-497c-987e-2ed2f1d69b93",
+        "components": 5,
+        "packages": 4,
+        "with_purl": 4,
+        "with_license": 0,
+        "generator": "trivy 0.69.3"
+      }
+    },
+    {
+      "id": "EK-VULN",
+      "mode": "auto",
+      "title": {
+        "en": "Known vulnerabilities in dependencies (SBOM scan, optional VEX)",
+        "pl": "Znane podatności w zależnościach (skan SBOM, opcjonalnie VEX)"
+      },
+      "ksc": [
+        "KSC-8.1.3",
+        "KSC-8.1.5b",
+        "KSC-8.1.5d"
+      ],
+      "cra": [
+        "CRA-I.1.2a",
+        "CRA-I.2.1",
+        "CRA-I.2.2"
+      ],
+      "osps": [
+        "OSPS-VM-05.03",
+        "OSPS-VM-04.02"
+      ],
+      "outcome": "fail",
+      "result": {
+        "en": "Known vulnerabilities: 7 high, 12 medium; 1 suppressed by VEX.",
+        "pl": "Znane podatności: high: 7, medium: 12; wyłączone przez VEX: 1."
+      },
+      "evidence": [
+        "vulnerabilities.trivy.json",
+        "sbom.cdx.json"
+      ],
+      "data": {
+        "by_severity": {
+          "CRITICAL": 0,
+          "HIGH": 7,
+          "MEDIUM": 12,
+          "LOW": 0,
+          "UNKNOWN": 0
+        },
+        "fixable": {
+          "CRITICAL": 0,
+          "HIGH": 7,
+          "MEDIUM": 12,
+          "LOW": 0,
+          "UNKNOWN": 0
+        },
+        "total": 19,
+        "suppressed_by_vex": 1,
+        "top": [
+          {
+            "id": "CVE-2023-43804",
+            "package": "urllib3",
+            "version": "1.26.4",
+            "fixed": "2.0.6, 1.26.17",
+            "severity": "HIGH"
+          },
+          {
+            "id": "CVE-2025-66418",
+            "package": "urllib3",
+            "version": "1.26.4",
+            "fixed": "2.6.0",
+            "severity": "HIGH"
+          },
+          {
+            "id": "CVE-2025-66471",
+            "package": "urllib3",
+            "version": "1.26.4",
+            "fixed": "2.6.0",
+            "severity": "HIGH"
+          },
+          {
+            "id": "CVE-2026-21441",
+            "package": "urllib3",
+            "version": "1.26.4",
+            "fixed": "2.6.3",
+            "severity": "HIGH"
+          },
+          {
+            "id": "CVE-2026-44431",
+            "package": "urllib3",
+            "version": "1.26.4",
+            "fixed": "2.7.0",
+            "severity": "HIGH"
+          },
+          {
+            "id": "CVE-2026-97687",
+            "package": "urllib3",
+            "version": "1.26.4",
+            "fixed": "2.8.0",
+            "severity": "HIGH"
+          },
+          {
+            "id": "CVE-2026-97689",
+            "package": "urllib3",
+            "version": "1.26.4",
+            "fixed": "2.8.0",
+            "severity": "HIGH"
+          },
+          {
+            "id": "CVE-2023-32681",
+            "package": "requests",
+            "version": "2.25.0",
+            "fixed": "2.31.0",
+            "severity": "MEDIUM"
+          },
+          {
+            "id": "CVE-2023-45803",
+            "package": "urllib3",
+            "version": "1.26.4",
+            "fixed": "2.0.7, 1.26.18",
+            "severity": "MEDIUM"
+          },
+          {
+            "id": "CVE-2024-22195",
+            "package": "jinja2",
+            "version": "3.1.2",
+            "fixed": "3.1.3",
+            "severity": "MEDIUM"
+          },
+          {
+            "id": "CVE-2024-34064",
+            "package": "jinja2",
+            "version": "3.1.2",
+            "fixed": "3.1.4",
+            "severity": "MEDIUM"
+          },
+          {
+            "id": "CVE-2024-35195",
+            "package": "requests",
+            "version": "2.25.0",
+            "fixed": "2.32.0",
+            "severity": "MEDIUM"
+          },
+          {
+            "id": "CVE-2024-37891",
+            "package": "urllib3",
+            "version": "1.26.4",
+            "fixed": "1.26.19, 2.2.2",
+            "severity": "MEDIUM"
+          },
+          {
+            "id": "CVE-2024-47081",
+            "package": "requests",
+            "version": "2.25.0",
+            "fixed": "2.32.4",
+            "severity": "MEDIUM"
+          },
+          {
+            "id": "CVE-2024-56201",
+            "package": "jinja2",
+            "version": "3.1.2",
+            "fixed": "3.1.5",
+            "severity": "MEDIUM"
+          },
+          {
+            "id": "CVE-2024-56326",
+            "package": "jinja2",
+            "version": "3.1.2",
+            "fixed": "3.1.5",
+            "severity": "MEDIUM"
+          },
+          {
+            "id": "CVE-2025-27516",
+            "package": "jinja2",
+            "version": "3.1.2",
+            "fixed": "3.1.6",
+            "severity": "MEDIUM"
+          },
+          {
+            "id": "CVE-2025-50181",
+            "package": "urllib3",
+            "version": "1.26.4",
+            "fixed": "2.5.0",
+            "severity": "MEDIUM"
+          },
+          {
+            "id": "CVE-2026-25645",
+            "package": "requests",
+            "version": "2.25.0",
+            "fixed": "2.33.0",
+            "severity": "MEDIUM"
+          }
+        ],
+        "vex_file": ".vex/openvex.json"
+      }
+    },
+    {
+      "id": "EK-SECRETS",
+      "mode": "auto",
+      "title": {
+        "en": "No secrets in git history (gitleaks)",
+        "pl": "Brak sekretów w historii git (gitleaks)"
+      },
+      "ksc": [
+        "KSC-8.1.2n",
+        "KSC-8.1.2j",
+        "KSC-8.1.5a"
+      ],
+      "cra": [
+        "CRA-I.1.2d",
+        "CRA-I.1.2e"
+      ],
+      "osps": [
+        "OSPS-BR-07.01"
+      ],
+      "outcome": "fail",
+      "result": {
+        "en": "1 potential secret(s) in git history (1 rule types). Rotate and remove them.",
+        "pl": "Potencjalne sekrety w historii git: 1 (typy reguł: 1). Unieważnij je i usuń."
+      },
+      "evidence": [
+        "secrets.gitleaks.json"
+      ],
+      "data": {
+        "findings": 1,
+        "by_rule": {
+          "generic-api-key": 1
+        },
+        "locations": [
+          {
+            "rule": "generic-api-key",
+            "file": "config/settings.example.py",
+            "line": 12,
+            "commit": "4f2c1d9e8b7a"
+          }
+        ]
+      }
+    },
+    {
+      "id": "EK-SCORECARD",
+      "mode": "auto",
+      "title": {
+        "en": "OpenSSF Scorecard (repository security practices)",
+        "pl": "OpenSSF Scorecard (praktyki bezpieczeństwa repozytorium)"
+      },
+      "ksc": [
+        "KSC-8.1.2b",
+        "KSC-8.1.2h"
+      ],
+      "cra": [
+        "CRA-I.2.3"
+      ],
+      "osps": [],
+      "outcome": "warn",
+      "result": {
+        "en": "Scorecard 6.2/10 (pass >= 7.0). Lowest: CII-Best-Practices, Fuzzing, Vulnerabilities, Branch-Protection, Contributors.",
+        "pl": "Scorecard 6.2/10 (próg zaliczenia 7.0). Najsłabsze: CII-Best-Practices, Fuzzing, Vulnerabilities, Branch-Protection, Contributors."
+      },
+      "evidence": [
+        "scorecard.json"
+      ],
+      "data": {
+        "score": 6.2,
+        "version": "v5.3.0",
+        "checks": [
+          {
+            "name": "Binary-Artifacts",
+            "score": 10,
+            "reason": "see documentation"
+          },
+          {
+            "name": "Branch-Protection",
+            "score": 3,
+            "reason": "see documentation"
+          },
+          {
+            "name": "CI-Tests",
+            "score": 10,
+            "reason": "see documentation"
+          },
+          {
+            "name": "CII-Best-Practices",
+            "score": 0,
+            "reason": "see documentation"
+          },
+          {
+            "name": "Code-Review",
+            "score": 4,
+            "reason": "see documentation"
+          },
+          {
+            "name": "Contributors",
+            "score": 3,
+            "reason": "see documentation"
+          },
+          {
+            "name": "Dangerous-Workflow",
+            "score": 10,
+            "reason": "see documentation"
+          },
+          {
+            "name": "Dependency-Update-Tool",
+            "score": 10,
+            "reason": "see documentation"
+          },
+          {
+            "name": "Fuzzing",
+            "score": 0,
+            "reason": "see documentation"
+          },
+          {
+            "name": "License",
+            "score": 10,
+            "reason": "see documentation"
+          },
+          {
+            "name": "Maintained",
+            "score": 10,
+            "reason": "see documentation"
+          },
+          {
+            "name": "Packaging",
+            "score": -1,
+            "reason": "no releases found"
+          },
+          {
+            "name": "Pinned-Dependencies",
+            "score": 6,
+            "reason": "see documentation"
+          },
+          {
+            "name": "SAST",
+            "score": 7,
+            "reason": "see documentation"
+          },
+          {
+            "name": "Security-Policy",
+            "score": 10,
+            "reason": "see documentation"
+          },
+          {
+            "name": "Signed-Releases",
+            "score": -1,
+            "reason": "no releases found"
+          },
+          {
+            "name": "Token-Permissions",
+            "score": 10,
+            "reason": "see documentation"
+          },
+          {
+            "name": "Vulnerabilities",
+            "score": 0,
+            "reason": "see documentation"
+          }
+        ],
+        "pass_min": 7.0,
+        "warn_min": 4.0
+      }
+    },
+    {
+      "id": "EK-SECURITY-POLICY",
+      "mode": "auto",
+      "title": {
+        "en": "Security policy with a reporting contact (SECURITY.md)",
+        "pl": "Polityka bezpieczeństwa z kontaktem do zgłoszeń (SECURITY.md)"
+      },
+      "ksc": [
+        "KSC-8.1.3",
+        "KSC-8.1.4"
+      ],
+      "cra": [
+        "CRA-I.2.6",
+        "CRA-13.17"
+      ],
+      "osps": [
+        "OSPS-VM-02.01",
+        "OSPS-VM-03.01"
+      ],
+      "outcome": "pass",
+      "result": {
+        "en": "SECURITY.md with a reporting contact. Private vulnerability reporting is enabled.",
+        "pl": "SECURITY.md z kontaktem do zgłoszeń. Prywatne zgłaszanie podatności jest włączone."
+      },
+      "evidence": [
+        "repo-checks.json"
+      ],
+      "data": {
+        "paths": [
+          "SECURITY.md"
+        ],
+        "contact_found": true,
+        "private_vulnerability_reporting": true
+      }
+    },
+    {
+      "id": "EK-CVD",
+      "mode": "auto",
+      "title": {
+        "en": "Coordinated vulnerability disclosure (CVD) policy",
+        "pl": "Polityka skoordynowanego ujawniania podatności (CVD)"
+      },
+      "ksc": [
+        "KSC-8.1.3",
+        "KSC-8.1.5d"
+      ],
+      "cra": [
+        "CRA-I.2.5",
+        "CRA-13.8"
+      ],
+      "osps": [
+        "OSPS-VM-01.01"
+      ],
+      "outcome": "pass",
+      "result": {
+        "en": "CVD section found in SECURITY.md.",
+        "pl": "Sekcja CVD w SECURITY.md."
+      },
+      "evidence": [
+        "repo-checks.json"
+      ],
+      "data": {
+        "paths": [],
+        "section_in_security_md": true
+      }
+    },
+    {
+      "id": "EK-SECURITY-TXT",
+      "mode": "auto",
+      "title": {
+        "en": "security.txt (RFC 9116) with Contact and valid Expires",
+        "pl": "security.txt (RFC 9116) z polem Contact i ważnym Expires"
+      },
+      "ksc": [
+        "KSC-8.1.3"
+      ],
+      "cra": [
+        "CRA-I.2.6",
+        "CRA-13.17"
+      ],
+      "osps": [],
+      "outcome": "pass",
+      "result": {
+        "en": ".well-known/security.txt valid until 2027-11-01T00:00:00Z.",
+        "pl": ".well-known/security.txt ważny do 2027-11-01T00:00:00Z."
+      },
+      "evidence": [
+        "repo-checks.json"
+      ],
+      "data": {
+        "paths": [
+          ".well-known/security.txt"
+        ],
+        "expires": "2027-11-01T00:00:00Z",
+        "contact": [
+          "mailto:security@example.com"
+        ]
+      }
+    },
+    {
+      "id": "EK-CODEOWNERS",
+      "mode": "auto",
+      "title": {
+        "en": "Code ownership defined (CODEOWNERS)",
+        "pl": "Określeni właściciele kodu (CODEOWNERS)"
+      },
+      "ksc": [
+        "KSC-8.1.2n",
+        "KSC-8.1.5c"
+      ],
+      "cra": [
+        "CRA-I.1.2f"
+      ],
+      "osps": [],
+      "outcome": "pass",
+      "result": {
+        "en": ".github/CODEOWNERS with 1 rule(s).",
+        "pl": ".github/CODEOWNERS: reguł 1."
+      },
+      "evidence": [
+        "repo-checks.json"
+      ],
+      "data": {
+        "paths": [
+          ".github/CODEOWNERS"
+        ],
+        "rules": 1
+      }
+    },
+    {
+      "id": "EK-BRANCH-PROTECTION",
+      "mode": "auto",
+      "title": {
+        "en": "Default branch protected (branch protection or ruleset)",
+        "pl": "Chroniona gałąź domyślna (ochrona gałęzi lub ruleset)"
+      },
+      "ksc": [
+        "KSC-8.1.5c",
+        "KSC-8.1.2n"
+      ],
+      "cra": [
+        "CRA-I.1.2f",
+        "CRA-I.1.2d"
+      ],
+      "osps": [
+        "OSPS-AC-03.01",
+        "OSPS-AC-03.02",
+        "OSPS-QA-07.01"
+      ],
+      "outcome": "pass",
+      "result": {
+        "en": "`main` requires pull requests (+ non_fast_forward, deletion).",
+        "pl": "Gałąź `main` wymaga pull requestów (+ non_fast_forward, deletion)."
+      },
+      "evidence": [
+        "repo-checks.json"
+      ],
+      "data": {
+        "default_branch": "main",
+        "protected": true,
+        "rules": [
+          "deletion",
+          "non_fast_forward",
+          "pull_request"
+        ],
+        "classic": null
+      }
+    },
+    {
+      "id": "EK-DEP-UPDATES",
+      "mode": "auto",
+      "title": {
+        "en": "Automated dependency updates (Dependabot or Renovate)",
+        "pl": "Automatyczne aktualizacje zależności (Dependabot lub Renovate)"
+      },
+      "ksc": [
+        "KSC-8.1.5b"
+      ],
+      "cra": [
+        "CRA-I.2.2"
+      ],
+      "osps": [],
+      "outcome": "pass",
+      "result": {
+        "en": "Dependency update config: .github/dependabot.yml.",
+        "pl": "Konfiguracja aktualizacji zależności: .github/dependabot.yml."
+      },
+      "evidence": [
+        "repo-checks.json"
+      ],
+      "data": {
+        "paths": [
+          ".github/dependabot.yml"
+        ]
+      }
+    },
+    {
+      "id": "EK-SUPPLIERS",
+      "mode": "auto",
+      "title": {
+        "en": "Supplier register present (content needs human review)",
+        "pl": "Rejestr dostawców w repozytorium (treść wymaga oceny człowieka)"
+      },
+      "ksc": [
+        "KSC-8.1.2e",
+        "KSC-8.2"
+      ],
+      "cra": [
+        "CRA-13.5"
+      ],
+      "osps": [],
+      "outcome": "warn",
+      "result": {
+        "en": "Supplier register: not found (see templates/).",
+        "pl": "Rejestr dostawców: nie znaleziono (zob. templates/)."
+      },
+      "evidence": [
+        "repo-checks.json"
+      ],
+      "data": {
+        "paths": []
+      }
+    },
+    {
+      "id": "EK-INCIDENT-RUNBOOK",
+      "mode": "auto",
+      "title": {
+        "en": "Incident and vulnerability reporting runbook present",
+        "pl": "Procedura zgłaszania incydentów i podatności w repozytorium"
+      },
+      "ksc": [
+        "KSC-8.1.4",
+        "KSC-11.1.4"
+      ],
+      "cra": [
+        "CRA-14"
+      ],
+      "osps": [],
+      "outcome": "warn",
+      "result": {
+        "en": "Incident reporting runbook: not found (see templates/).",
+        "pl": "Procedura zgłaszania incydentów: nie znaleziono (zob. templates/)."
+      },
+      "evidence": [
+        "repo-checks.json"
+      ],
+      "data": {
+        "paths": []
+      }
+    },
+    {
+      "id": "M-RISK",
+      "mode": "manual",
+      "title": {
+        "en": "Risk assessment and risk treatment",
+        "pl": "Szacowanie ryzyka i postępowanie z ryzykiem"
+      },
+      "ksc": [
+        "KSC-8.1.1",
+        "KSC-8.1.2a"
+      ],
+      "cra": [
+        "CRA-13.2",
+        "CRA-I.1.1"
+      ],
+      "osps": [],
+      "outcome": "manual",
+      "result": {
+        "en": "Current risk register and method, product risk assessment (CRA), management approval.",
+        "pl": "Aktualny rejestr ryzyk i metodyka, ocena ryzyka produktu (CRA), akceptacja kierownictwa."
+      },
+      "evidence": [],
+      "data": {}
+    },
+    {
+      "id": "M-BCP",
+      "mode": "manual",
+      "title": {
+        "en": "Business continuity, backups and recovery",
+        "pl": "Ciągłość działania, kopie zapasowe i odtwarzanie"
+      },
+      "ksc": [
+        "KSC-8.1.2f"
+      ],
+      "cra": [
+        "CRA-I.1.2h"
+      ],
+      "osps": [],
+      "outcome": "manual",
+      "result": {
+        "en": "BCP/DRP, backup policy, results of the last restore test.",
+        "pl": "Plan ciągłości działania i odtwarzania, polityka kopii, wynik ostatniego testu odtworzenia."
+      },
+      "evidence": [],
+      "data": {}
+    },
+    {
+      "id": "M-CRYPTO",
+      "mode": "manual",
+      "title": {
+        "en": "Cryptography and encryption policy",
+        "pl": "Polityka kryptografii i szyfrowania"
+      },
+      "ksc": [
+        "KSC-8.1.2k"
+      ],
+      "cra": [
+        "CRA-I.1.2e"
+      ],
+      "osps": [],
+      "outcome": "manual",
+      "result": {
+        "en": "Crypto policy (algorithms, key management), TLS and at-rest encryption configuration.",
+        "pl": "Polityka kryptograficzna (algorytmy, zarządzanie kluczami), konfiguracja TLS i szyfrowania danych."
+      },
+      "evidence": [],
+      "data": {}
+    },
+    {
+      "id": "M-ACCESS",
+      "mode": "manual",
+      "title": {
+        "en": "Access control, MFA and physical security",
+        "pl": "Kontrola dostępu, MFA i bezpieczeństwo fizyczne"
+      },
+      "ksc": [
+        "KSC-8.1.2c",
+        "KSC-8.1.2l",
+        "KSC-8.1.2n"
+      ],
+      "cra": [
+        "CRA-I.1.2d"
+      ],
+      "osps": [],
+      "outcome": "manual",
+      "result": {
+        "en": "Access control policy, MFA enforcement (e.g. GitHub org setting), periodic access reviews.",
+        "pl": "Polityka kontroli dostępu, wymuszenie MFA (np. ustawienie organizacji GitHub), okresowe przeglądy uprawnień."
+      },
+      "evidence": [],
+      "data": {}
+    },
+    {
+      "id": "M-PEOPLE",
+      "mode": "manual",
+      "title": {
+        "en": "Staff security, training and cyber hygiene",
+        "pl": "Bezpieczeństwo personelu, szkolenia i cyberhigiena"
+      },
+      "ksc": [
+        "KSC-8.1.2d",
+        "KSC-8.1.2i",
+        "KSC-8.1.2j",
+        "KSC-8e"
+      ],
+      "cra": [],
+      "osps": [],
+      "outcome": "manual",
+      "result": {
+        "en": "Training records for staff and the annual training of the manager (art. 8e), onboarding/offboarding procedure.",
+        "pl": "Ewidencja szkoleń personelu i corocznego szkolenia kierownika (art. 8e), procedura przyjęcia i odejścia pracownika."
+      },
+      "evidence": [],
+      "data": {}
+    },
+    {
+      "id": "M-MONITORING",
+      "mode": "manual",
+      "title": {
+        "en": "Continuous monitoring and incident handling",
+        "pl": "Monitorowanie w trybie ciągłym i obsługa incydentów"
+      },
+      "ksc": [
+        "KSC-8.1.2g",
+        "KSC-8.1.4"
+      ],
+      "cra": [
+        "CRA-I.1.2l"
+      ],
+      "osps": [],
+      "outcome": "manual",
+      "result": {
+        "en": "Monitoring/SIEM scope, alerting, incident register, a tested reporting exercise.",
+        "pl": "Zakres monitorowania (SIEM), alarmowanie, rejestr incydentów, przećwiczone zgłoszenie."
+      },
+      "evidence": [],
+      "data": {}
+    },
+    {
+      "id": "M-ASSETS",
+      "mode": "manual",
+      "title": {
+        "en": "Asset inventory",
+        "pl": "Inwentaryzacja aktywów"
+      },
+      "ksc": [
+        "KSC-8.1.2m"
+      ],
+      "cra": [],
+      "osps": [],
+      "outcome": "manual",
+      "result": {
+        "en": "Inventory of systems, services and repositories in scope, with owners.",
+        "pl": "Wykaz systemów, usług i repozytoriów objętych zakresem, z właścicielami."
+      },
+      "evidence": [],
+      "data": {}
+    },
+    {
+      "id": "M-UPDATES",
+      "mode": "manual",
+      "title": {
+        "en": "Security update delivery, advisories and support period",
+        "pl": "Dostarczanie aktualizacji zabezpieczeń, komunikaty i okres wsparcia"
+      },
+      "ksc": [
+        "KSC-8.1.5b"
+      ],
+      "cra": [
+        "CRA-I.1.2c",
+        "CRA-I.2.4",
+        "CRA-I.2.7",
+        "CRA-I.2.8",
+        "CRA-13.8"
+      ],
+      "osps": [],
+      "outcome": "manual",
+      "result": {
+        "en": "Release process (signed releases), published advisories for fixed vulnerabilities, declared support period.",
+        "pl": "Proces wydań (podpisane wydania), publikowane komunikaty o naprawionych podatnościach, zadeklarowany okres wsparcia."
+      },
+      "evidence": [],
+      "data": {}
+    },
+    {
+      "id": "M-SECURE-DESIGN",
+      "mode": "manual",
+      "title": {
+        "en": "Secure by default and minimal attack surface",
+        "pl": "Bezpieczna konfiguracja domyślna i ograniczona powierzchnia ataku"
+      },
+      "ksc": [
+        "KSC-8.1.2b"
+      ],
+      "cra": [
+        "CRA-I.1.2b",
+        "CRA-I.1.2j"
+      ],
+      "osps": [],
+      "outcome": "manual",
+      "result": {
+        "en": "Threat model or design review, hardening baseline, default configuration review.",
+        "pl": "Model zagrożeń lub przegląd projektu, standard utwardzania, przegląd konfiguracji domyślnej."
+      },
+      "evidence": [],
+      "data": {}
+    },
+    {
+      "id": "M-AUDIT",
+      "mode": "manual",
+      "title": {
+        "en": "Statutory security audit",
+        "pl": "Ustawowy audyt bezpieczeństwa"
+      },
+      "ksc": [
+        "KSC-15.1"
+      ],
+      "cra": [],
+      "osps": [],
+      "outcome": "manual",
+      "result": {
+        "en": "Audit report by an authorised auditor (essential entities). This kit does not replace it.",
+        "pl": "Sprawozdanie z audytu przeprowadzonego przez uprawnionego audytora (podmioty kluczowe). Ten zestaw go nie zastępuje."
+      },
+      "evidence": [],
+      "data": {}
+    }
+  ],
+  "evidence_files": [
+    {
+      "path": "repo-checks.json",
+      "sha256": "91ebda29928f1844bf25f6a5d1ff24a9104ffd54ab6851d2188de0a940593698",
+      "bytes": 1769
+    },
+    {
+      "path": "sbom.cdx.json",
+      "sha256": "e492a09aec2560ca34bdf0fcdf10f9c188db048b034766e2bc5b0249b74b5342",
+      "bytes": 3095
+    },
+    {
+      "path": "scorecard.json",
+      "sha256": "43811c3da7880afe9f2e58fa5709452403229a852070bb53fc902e7a7ffc7d74",
+      "bytes": 5328
+    },
+    {
+      "path": "secrets.gitleaks.json",
+      "sha256": "6d1f2c23df6e1accdf27a32063d4d31b415fc6299e67d46cc9705fb8b518f381",
+      "bytes": 706
+    },
+    {
+      "path": "vulnerabilities.trivy.json",
+      "sha256": "4ed642216327a45b06061643c760ca128d43cc730c232ce79d388534f4f0ed52",
+      "bytes": 13056
+    }
+  ],
+  "inputs_missing": {}
+}

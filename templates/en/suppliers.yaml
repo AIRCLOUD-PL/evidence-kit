@@ -1,0 +1,45 @@
+# Supplier register (ICT supply chain). Template from evidence-kit (Apache-2.0).
+# Keep it in the repository, e.g. docs/suppliers.yaml, and review it at least yearly.
+# Supports KSC art. 8 ust. 1 pkt 2 lit. e and art. 8 ust. 2 (supplier vulnerabilities, overall
+# quality, EU coordinated risk assessments, art. 67b high-risk supplier decisions) and CRA Art. 13(5)
+# (due diligence for third-party components). Informative only, not legal advice.
+schema: evidence-kit/suppliers/v1
+owner: <role>
+last_review: <YYYY-MM-DD>
+suppliers:
+  - id: SUP-001
+    name: <Example Cloud Ltd>
+    service: <IaaS hosting of production>
+    type: service              # service | software | hardware | open-source-component
+    criticality: high          # high | medium | low (impact on our service if unavailable or compromised)
+    data_access: personal-data # none | internal | personal-data | secrets
+    contract_ref: <contract no. / DPA / SLA link>
+    security_clauses: true     # incident notification, audit right, sub-processors, exit
+    certifications: [ISO/IEC 27001]
+    known_vulnerabilities_considered: <how we track advisories of this supplier>   # KSC art. 8 ust. 2 pkt 1
+    quality_assessment: <questionnaire / review, date, result>                       # KSC art. 8 ust. 2 pkt 2
+    eu_coordinated_risk_assessment: <n/a or reference>                               # KSC art. 8 ust. 2 pkt 3
+    high_risk_supplier_decision: <none known / reference>                             # KSC art. 8 ust. 2 pkt 4 (art. 67b)
+    last_assessment: <YYYY-MM-DD>
+    next_assessment: <YYYY-MM-DD>
+    exit_plan: <link>
+    owner: <role>
+    notes: ""
+  - id: SUP-002
+    name: <open-source library or vendor SDK>
+    service: <component in our product>
+    type: open-source-component
+    criticality: medium
+    data_access: none
+    contract_ref: <licence, e.g. Apache-2.0>
+    security_clauses: false
+    certifications: []
+    known_vulnerabilities_considered: SBOM + vulnerability scan in the evidence artifact (EK-SBOM, EK-VULN)
+    quality_assessment: <OpenSSF Scorecard of the upstream project, maintenance activity>
+    eu_coordinated_risk_assessment: n/a
+    high_risk_supplier_decision: none known
+    last_assessment: <YYYY-MM-DD>
+    next_assessment: <YYYY-MM-DD>
+    exit_plan: <alternative component>
+    owner: <role>
+    notes: ""

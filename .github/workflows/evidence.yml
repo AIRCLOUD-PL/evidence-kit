@@ -1,0 +1,254 @@
+# evidence-kit: reusable workflow that collects supply-chain security evidence.
+#
+# Usage (caller repository, e.g. .github/workflows/evidence.yml):
+#
+#   on:
+#     push:
+#       branches: [main]
+#     workflow_dispatch: {}
+#   permissions:
+#     contents: read
+#   jobs:
+#     evidence:
+#       uses: lkolo-prez/evidence-kit/.github/workflows/evidence.yml@<40-hex-sha> # v0.1.0
+#       permissions:
+#         contents: read
+#         actions: read
+#       with:
+#         kit-ref: <same 40-hex-sha>   # the scripts and mapping are checked out at this ref
+#
+# Output: artifact "evidence" with sbom.cdx.json, vulnerabilities.trivy.json,
+# secrets.gitleaks.json, scorecard.json, repo-checks.json, evidence.json,
+# evidence-report.md (EN) and evidence-report.pl.md (PL).
+#
+# Informative mapping only: not legal advice and not a certification.
+name: evidence
+
+on:
+  workflow_call:
+    inputs:
+      kit-ref:
+        description: Ref (tag or SHA) of evidence-kit to use for scripts and mapping. Pin it to the same SHA as `uses:`.
+        required: false
+        type: string
+        default: v0.1.0
+      kit-repository:
+        description: Repository that hosts evidence-kit (change only for forks).
+        required: false
+        type: string
+        default: lkolo-prez/evidence-kit
+      scan-path:
+        description: Path to scan for the SBOM, relative to the repository root.
+        required: false
+        type: string
+        default: "."
+      skip-dirs:
+        description: Extra comma-separated directories to exclude from the SBOM.
+        required: false
+        type: string
+        default: ""
+      vex-file:
+        description: Optional VEX document (OpenVEX, CycloneDX VEX or CSAF) applied to the vulnerability scan.
+        required: false
+        type: string
+        default: ""
+      run-scorecard:
+        description: Run OpenSSF Scorecard (results are not published).
+        required: false
+        type: boolean
+        default: true
+      fail-on:
+        description: Fail the job on vulnerabilities at or above this severity (none, critical, high, medium, low).
+        required: false
+        type: string
+        default: none
+      fail-on-secrets:
+        description: Fail the job when gitleaks finds potential secrets.
+        required: false
+        type: boolean
+        default: false
+      lang:
+        description: Report languages, comma-separated (en, pl).
+        required: false
+        type: string
+        default: en,pl
+      artifact-name:
+        description: Name of the uploaded evidence artifact.
+        required: false
+        type: string
+        default: evidence
+      retention-days:
+        description: Artifact retention in days.
+        required: false
+        type: number
+        default: 90
+      runs-on:
+        description: Runner label.
+        required: false
+        type: string
+        default: ubuntu-24.04
+    outputs:
+      summary:
+        description: JSON object with the number of controls per outcome.
+        value: ${{ jobs.evidence.outputs.summary }}
+
+permissions:
+  contents: read
+
+jobs:
+  evidence:
+    name: Collect evidence
+    runs-on: ${{ inputs.runs-on }}
+    timeout-minutes: 20
+    permissions:
+      contents: read   # checkout, file checks, branch API
+      actions: read    # OpenSSF Scorecard (CI-Tests, Dangerous-Workflow on private repos)
+    outputs:
+      summary: ${{ steps.report.outputs.summary }}
+    env:
+      EK_TRIVY_VERSION: v0.70.0
+      EK_GITLEAKS_VERSION: 8.30.1
+      EK_GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+      EK_SCORECARD_VERSION: v2.6.0
+    steps:
+      - name: Harden the runner
+        uses: step-security/harden-runner@cb605e52c26070c328afc4562f0b4ada7618a84e # v2.10.4
+        with:
+          egress-policy: audit
+
+      - name: Checkout repository (full history for the secret scan)
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Checkout evidence-kit
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          repository: ${{ inputs.kit-repository }}
+          ref: ${{ inputs.kit-ref }}
+          path: .evidence-kit
+          persist-credentials: false
+
+      - name: Prepare evidence directory
+        env:
+          SKIP_DIRS: ${{ inputs.skip-dirs }}
+        run: |
+          set -euo pipefail
+          echo "EK_DIR=${RUNNER_TEMP}/evidence" >> "$GITHUB_ENV"
+          mkdir -p "${RUNNER_TEMP}/evidence"
+          skip=".evidence-kit"
+          if [ -n "${SKIP_DIRS}" ]; then skip="${skip},${SKIP_DIRS}"; fi
+          echo "EK_SKIP_DIRS=${skip}" >> "$GITHUB_ENV"
+
+      # --- 1. SBOM (CycloneDX) -------------------------------------------------
+      - name: SBOM (Trivy, CycloneDX)
+        continue-on-error: true
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          scan-type: fs
+          scan-ref: ${{ inputs.scan-path }}
+          format: cyclonedx
+          output: ${{ env.EK_DIR }}/sbom.cdx.json
+          skip-dirs: ${{ env.EK_SKIP_DIRS }}
+          version: ${{ env.EK_TRIVY_VERSION }}
+
+      # --- 2. Vulnerabilities of the SBOM (+ optional VEX) ----------------------
+      - name: Vulnerability scan of the SBOM (Trivy)
+        continue-on-error: true
+        env:
+          VEX_FILE: ${{ inputs.vex-file }}
+          TRIVY_DB_REPOSITORY: ghcr.io/aquasecurity/trivy-db
+        run: |
+          set -euo pipefail
+          args=(sbom --quiet --format json --exit-code 0 --output "${EK_DIR}/vulnerabilities.trivy.json")
+          if [ -n "${VEX_FILE}" ]; then
+            test -f "${VEX_FILE}" || { echo "::error::vex-file '${VEX_FILE}' not found"; exit 1; }
+            args+=(--vex "${VEX_FILE}" --show-suppressed)
+          fi
+          trivy "${args[@]}" "${EK_DIR}/sbom.cdx.json"
+
+      # --- 3. Secrets in git history (gitleaks CLI, MIT, checksum-verified) -----
+      - name: Install gitleaks CLI
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          tarball="gitleaks_${EK_GITLEAKS_VERSION}_linux_x64.tar.gz"
+          curl -fsSL -o "${RUNNER_TEMP}/${tarball}" \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${EK_GITLEAKS_VERSION}/${tarball}"
+          echo "${EK_GITLEAKS_SHA256}  ${RUNNER_TEMP}/${tarball}" | sha256sum --check --strict
+          tar -xzf "${RUNNER_TEMP}/${tarball}" -C "${RUNNER_TEMP}" gitleaks
+
+      - name: Secret scan (gitleaks, full history, redacted)
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          "${RUNNER_TEMP}/gitleaks" git . --redact --no-banner --exit-code 0 \
+            --report-format json --report-path "${EK_DIR}/secrets.gitleaks.json"
+
+      # --- 4. OpenSSF Scorecard (not published) --------------------------------
+      - name: OpenSSF Scorecard
+        if: inputs.run-scorecard
+        continue-on-error: true
+        uses: ossf/scorecard-action@23f22cd43608bae7a1f1fa2603d7314dee9538a5 # v2.6.0
+        with:
+          results_file: .evidence-kit-scorecard.json
+          results_format: json
+          publish_results: false
+
+      - name: Move Scorecard result
+        if: inputs.run-scorecard
+        run: |
+          if [ -f .evidence-kit-scorecard.json ]; then mv .evidence-kit-scorecard.json "${EK_DIR}/scorecard.json"; fi
+
+      # --- 5. Repository hygiene + report --------------------------------------
+      - name: Repository checks
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          EK_VEX_FILE: ${{ inputs.vex-file }}
+          EK_SCORECARD_ENABLED: ${{ inputs.run-scorecard }}
+          PYTHONPATH: .evidence-kit
+        run: python3 -m evidence_kit collect --repo . --out "${EK_DIR}/repo-checks.json"
+
+      - name: Install report dependencies (hash-pinned)
+        run: |
+          set -euo pipefail
+          python3 -m venv "${RUNNER_TEMP}/ek-venv"
+          "${RUNNER_TEMP}/ek-venv/bin/pip" install --quiet --disable-pip-version-check \
+            --require-hashes --only-binary=:all: -r .evidence-kit/requirements.txt
+
+      - name: Build evidence report
+        id: report
+        env:
+          EK_LANG: ${{ inputs.lang }}
+          PYTHONPATH: .evidence-kit
+        run: |
+          set -euo pipefail
+          "${RUNNER_TEMP}/ek-venv/bin/python" -m evidence_kit report --evidence-dir "${EK_DIR}" --lang "${EK_LANG}"
+          first="$(echo "${EK_LANG}" | cut -d, -f1)"
+          if [ "${first}" = "pl" ]; then cat "${EK_DIR}/evidence-report.pl.md" >> "$GITHUB_STEP_SUMMARY";
+          else cat "${EK_DIR}/evidence-report.md" >> "$GITHUB_STEP_SUMMARY"; fi
+          summary="$(python3 -c 'import json,sys; print(json.dumps(json.load(open(sys.argv[1]))["summary"]))' "${EK_DIR}/evidence.json")"
+          echo "summary=${summary}" >> "$GITHUB_OUTPUT"
+
+      - name: Upload evidence bundle
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ${{ inputs.artifact-name }}
+          path: ${{ env.EK_DIR }}
+          retention-days: ${{ inputs.retention-days }}
+          if-no-files-found: error
+
+      # Gate runs after the upload, so evidence is kept even when the job fails.
+      - name: Gate
+        if: inputs.fail-on != 'none' || inputs.fail-on-secrets
+        env:
+          EK_FAIL_ON: ${{ inputs.fail-on }}
+          EK_FAIL_ON_SECRETS: ${{ inputs.fail-on-secrets }}
+          PYTHONPATH: .evidence-kit
+        run: |
+          set -euo pipefail
+          args=(--evidence "${EK_DIR}/evidence.json" --fail-on "${EK_FAIL_ON}")
+          if [ "${EK_FAIL_ON_SECRETS}" = "true" ]; then args+=(--fail-on-secrets); fi
+          python3 -m evidence_kit gate "${args[@]}"
