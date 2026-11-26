@@ -8,7 +8,7 @@ collector checks repository hygiene, and a report generator joins tool outputs w
 mapping to produce `evidence.json` and EN/PL Markdown reports.
 
 ## Technical context
-- **Runtime**: GitHub-hosted `ubuntu-24.04`, system `python3` (3.12). Locally Python >= 3.10.
+- **Runtime**: GitHub-hosted `ubuntu-24.04`, system `python3` (3.12). Locally Python >= 3.11 (3.10 is end-of-life since October 2026).
 - **Dependencies**: PyYAML only (hash-pinned `requirements.txt`); dev: pytest, ruff (hash-pinned).
 - **Tools composed**: Trivy CLI 0.76.2 and gitleaks CLI 8.30.1 (release binaries, SHA-256 pinned,
   x64 and arm64), ossf/scorecard-action v2.6.0, actions/checkout v7.0.1, actions/upload-artifact

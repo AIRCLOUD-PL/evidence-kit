@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Supply-chain security evidence (SBOM, vulnerabilities, secrets, Scorecard) mapped to KSC (NIS2 PL) and the EU Cyber Resilience Act."
 readme = "README.md"
 license = "Apache-2.0"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = ["pyyaml>=6.0"]
 authors = [{ name = "AIRCLOUD", email = "office@aircloud.com.pl" }]
 
@@ -14,7 +14,7 @@ Source = "https://github.com/AIRCLOUD-PL/evidence-kit"
 
 [tool.ruff]
 line-length = 120
-target-version = "py310"
+target-version = "py311"
 extend-exclude = [".specify", ".claude"]
 
 [tool.ruff.lint]

@@ -62,7 +62,7 @@ def test_empty_repo(tmp_path):  # V006
 
 
 def test_parse_security_txt():  # V006
-    now = dt.datetime(2026, 11, 25, tzinfo=dt.timezone.utc)
+    now = dt.datetime(2026, 11, 25, tzinfo=dt.UTC)
     ok = col.parse_security_txt("# c\nContact: mailto:a@b.pl\nExpires: 2027-01-01T00:00:00Z\n", now)
     assert ok["contact"] == ["mailto:a@b.pl"] and ok["expires_valid"] is True
     old = col.parse_security_txt("Contact: x\nExpires: 2026-01-01T00:00:00Z\n", now)

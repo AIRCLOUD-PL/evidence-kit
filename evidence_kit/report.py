@@ -138,11 +138,7 @@ T = {
 
 def _now() -> str:
     sde = os.environ.get("SOURCE_DATE_EPOCH")
-    t = (
-        dt.datetime.fromtimestamp(int(sde), dt.timezone.utc)
-        if sde and sde.isdigit()
-        else dt.datetime.now(dt.timezone.utc)
-    )
+    t = dt.datetime.fromtimestamp(int(sde), dt.UTC) if sde and sde.isdigit() else dt.datetime.now(dt.UTC)
     return t.replace(microsecond=0).isoformat()
 
 

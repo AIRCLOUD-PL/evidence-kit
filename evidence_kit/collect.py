@@ -129,7 +129,7 @@ def find_security_txt(root: Path) -> list[str]:
 
 def parse_security_txt(text: str, now: dt.datetime | None = None) -> dict[str, Any]:
     """Parse RFC 9116 fields that matter for evidence (Contact, Expires, Policy)."""
-    now = now or dt.datetime.now(dt.timezone.utc)
+    now = now or dt.datetime.now(dt.UTC)
     fields: dict[str, list[str]] = {}
     for line in text.splitlines():
         line = line.strip()
@@ -143,7 +143,7 @@ def parse_security_txt(text: str, now: dt.datetime | None = None) -> dict[str, A
         try:
             exp = dt.datetime.fromisoformat(expires_raw.replace("Z", "+00:00"))
             if exp.tzinfo is None:
-                exp = exp.replace(tzinfo=dt.timezone.utc)
+                exp = exp.replace(tzinfo=dt.UTC)
             expires_ok = exp > now
         except ValueError:
             expires_ok = False
@@ -253,7 +253,7 @@ def collect(root: Path, env: dict[str, str] | None = None) -> dict[str, Any]:
 
     result: dict[str, Any] = {
         "schema": "evidence-kit/repo-checks/v1",
-        "collected_at": dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat(),
+        "collected_at": dt.datetime.now(dt.UTC).replace(microsecond=0).isoformat(),
         "files": {
             "security_policy": {"paths": security_md, "contact_found": contact_in_policy},
             "cvd_policy": {"paths": cvd_files, "section_in_security_md": cvd_in_security_md},
