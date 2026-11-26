@@ -1,5 +1,5 @@
-# pip: Dependabot resolves with the Python from .python-version (3.12, the same
-# as ubuntu-24.04 runners and the `uv pip compile --python-version 3.12` lock).
+# pip: Dependabot resolves with the lowest Python allowed by requires-python in
+# pyproject.toml (>=3.11); the hash-locked dev tools need >= 3.11.
 version: 2
 updates:
   - package-ecosystem: github-actions
